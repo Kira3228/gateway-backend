@@ -1,6 +1,6 @@
 export enum UserTypeEnum {
-  operator,
-  sender,
-  receiver,
-  admin
+  operator = "operator",
+  sender = "sender",
+  receiver = "receiver",
+  admin = "admin"
 }

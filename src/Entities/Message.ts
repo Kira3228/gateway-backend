@@ -10,7 +10,7 @@ import { MessageStatusHistory } from "./MessageStatusHistory";
 import { MessageFile } from "./MessageFile";
 import { MessageExt } from "./MessageExt";
 
-@Check(`is_valid_uuid(message_id)`)
+// @Check(`is_valid_uuid(message_id)`)
 @Check(`priority BETWEEN 1 AND 10`)
 @Check(`message_copies > 0`)
 @Check(`number_copy > 0 AND number_copy <= message_copies`)
@@ -21,9 +21,16 @@ import { MessageExt } from "./MessageExt";
 export class Message {
   @PrimaryGeneratedColumn({ name: `id` })
   id!: number
+
   @Column(`varchar`, { name: `message_id`, nullable: false, unique: true })
   messageId!: string
-  @Column(`enum`, { name: `message_type`, enum: MessageTypeEnum, enumName: `message_type_enum`, nullable: false })
+
+  @Column(`enum`, {
+    name: `message_type`,
+    enum: MessageTypeEnum,
+    enumName: `message_type_enum`,
+    nullable: false
+  })
   messageType!: MessageTypeEnum
   @Column(`enum`, { name: `message_category`, enum: MessageCategoryEnum, enumName: `message_category_enum`, nullable: false })
   messageCategory!: MessageCategoryEnum
@@ -45,9 +52,9 @@ export class Message {
   numberCopy!: number
   @Column(`varchar`, { name: `sender_number` })
   senderName!: string
-  @Column(`timestamp`, { name: `created_at`, default: Date.now() })
+  @Column(`timestamp`, { name: `created_at`, default: () => `CURRENT_TIMESTAMP` })
   createdAt!: Date
-  @Column(`timestamp`, { name: `updated_at`, default: Date.now() })
+  @Column(`timestamp`, { name: `updated_at`, default: () => `CURRENT_TIMESTAMP` })
   updatedAt!: Date
 
   //СВЯЗИ
@@ -63,22 +70,23 @@ export class Message {
   @Column(`bigint`, { name: `user_to_id` })
   userToId!: number
 
-  @ManyToOne(() => User, user => user.id, { onDelete: "SET NULL", onUpdate: "CASCADE" })
+  @ManyToOne(() => User, user => user.id, { nullable: true, onDelete: "SET NULL", onUpdate: "CASCADE" })
   @JoinColumn({ name: `user_operator_id` })
   userOperator!: User
-  @Column(`bigint`, { name: `user_operator_id` })
+  @Column(`bigint`, { name: `user_operator_id`, nullable: true })
   userOperatorId!: number
 
   @ManyToOne(() => System, sys => sys.id, { nullable: false, onDelete: "CASCADE", onUpdate: "CASCADE" })
   @JoinColumn({ name: `target_system_id` })
   targetSystem!: System
-  @Column(`varchar`, { unique: true, name: `target_system_id` })
+  @Column(`varchar`, { name: `target_system_id` })
   targetSystemId!: number
 
   @ManyToOne(() => System, sys => sys.id, { nullable: false, onDelete: "CASCADE", onUpdate: "CASCADE" })
   @JoinColumn({ name: `source_system_id` })
   sourceSystem!: System
-  @Column(`bigint`, { name: `source _system_id` })
+
+  @Column('bigint', { name: 'source_system_id' })
   sourceSystemId!: number
 
   @ManyToOne(() => Point, point => point.id, { onDelete: "SET NULL", onUpdate: "CASCADE" })
@@ -93,6 +101,6 @@ export class Message {
   @OneToMany(() => MessageFile, file => file.messageId)
   messageFile!: MessageFile[]
 
-  @OneToOne(() => MessageExt, msgext => msgext.messageId)
+  @OneToOne(() => MessageExt, msgext => msgext.message)
   messageExt!: number
 }

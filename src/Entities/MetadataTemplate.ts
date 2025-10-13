@@ -24,7 +24,7 @@ export class MetadataTemplate {
   regexPattern!: string
   @Column(`varchar`, { name: `regex_flags`, default: `MULTILINE,DOTALL` })
   regexFlags!: string
-  @Column(`text`, { name: `field_validation` })
+  @Column(`text`, { name: `field_validations` })
   fieldValidation!: string
   @Column(`boolean`, { default: true, name: `is_active` })
   isActive!: boolean
@@ -36,7 +36,7 @@ export class MetadataTemplate {
   updatedAt!: Date
 
   @ManyToOne(() => System, sys => sys.systemCode)
-  @JoinColumn({ name: `system_code` })
+  @JoinColumn({ name: `system_code`, referencedColumnName: "systemCode" })
   system!: System
   @Column(`varchar`, { nullable: false, name: `system_code` })
   systemCode!: string

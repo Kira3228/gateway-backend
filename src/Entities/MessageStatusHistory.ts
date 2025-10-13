@@ -10,7 +10,7 @@ export class MessageStatusHistory {
   @PrimaryGeneratedColumn({ name: `id` })
   id!: number
 
-  @Column(`enum`, { name: `old_status`, enum: MessageStatusEnum, enumName: `message_status_enum` })
+  @Column(`enum`, { name: `old_status`, enum: MessageStatusEnum, enumName: `message_status_enum`, nullable: true })
   oldStatus!: MessageStatusEnum
 
   @Column(`enum`, { name: `new_status`, enum: MessageStatusEnum, enumName: `message_status_enum`, nullable: false })
@@ -38,4 +38,4 @@ export class MessageStatusHistory {
   user!: User
   @Column(`bigint`, { name: `changed_by_user_id` })
   changedByUserId!: number
-}
+} 

@@ -5,7 +5,7 @@ import { Message } from "./Message";
 @Check(`LENGTH(file_path) > 0`)
 @Check(`file_size_bytes >= 0`)
 @Check(`file_order >= 0`)
-@Check(`checksum IS NULL OR is_valid_sha256(checksum)`)
+// @Check(`checksum IS NULL OR is_valid_sha256(checksum)`)
 @Check(`file_type IS NULL OR LENGTH(file_type) > 0`)
 @Check(`mime_type IS NULL OR LENGTH(mime_type) > 0`)
 @Check(`description IS NULL OR LENGTH(description) > 0`)
@@ -28,7 +28,7 @@ export class MessageFile {
   fileType!: string
   @Column(`bigint`, { name: `file_size_bytes`, nullable: false })
   fileSizeBytes!: number
-  @Column(`varchar`, { name: `checksum` })
+  @Column(`varchar`, { name: `checksum`, nullable: true })
   checksum!: string
   @Column(`varchar`, { name: `mime_type` })
   memeType!: string

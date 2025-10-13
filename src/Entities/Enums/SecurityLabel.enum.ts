@@ -1,3 +1,3 @@
 export enum SecurityLabelEnum {
-  НС, С, СС, ОВ
+  НС = "HC", С = "C", СС = "CC", ОВ = "OB"
 }

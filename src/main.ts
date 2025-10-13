@@ -1,23 +1,25 @@
-import express from 'express'
+import express, { Router } from 'express'
 import cors from 'cors'
 import { connection } from './connection'
 import { container } from 'tsyringe'
-import { getRepository } from 'typeorm'
+import { getRepository, Repository } from 'typeorm'
 import { Message } from './Entities/Message'
-import { MessageRepositoryToken } from './Message/message.service'
+import { MessageRepositoryToken, MessageService } from './Message/message.service'
+import { MessageController, MessageServiceToken, RouterToken } from './Message/message.controller'
 
 async function bootstrap() {
   const app = express()
   const PORT = process.env.PORT || 3000
   app.use(express.json())
-  app.use(cors)
+  app.use(cors())
+
   await connection
+  container.register(RouterToken, { useValue: Router() })
+  container.register(MessageRepositoryToken, { useValue: getRepository(Message) });
+  container.register(MessageServiceToken, { useClass: MessageService });
+  const messageController = container.resolve(MessageController)
 
-  container.register(MessageRepositoryToken, {
-    useValue: getRepository(Message)
-  })
-
-
+  app.use(`/messages`, messageController.getRoutes())
 
 
 

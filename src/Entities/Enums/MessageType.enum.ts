@@ -1,4 +1,4 @@
 export enum MessageTypeEnum {
-  TEXT,
-  BINARY
+  TEXT = "TEXT",
+  BINARY = `BINARY`
 }

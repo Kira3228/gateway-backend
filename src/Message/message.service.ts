@@ -8,8 +8,8 @@ export const MessageRepositoryToken: InjectionToken<Repository<Message>> = "Mess
 export class MessageService {
   constructor(@inject(MessageRepositoryToken) private readonly messageRepo: Repository<Message>) { }
 
-  async getMessages() {
-    const messages = await this.messageRepo.find({})
+  async getAllMessages() {
+    const messages = await this.messageRepo.find()
     return messages
   }
 

@@ -1,3 +1,5 @@
 export enum MessageCategoryEnum {
-  urgent, normal, low
+  urgent = `urgent`,
+  normal = `normal`,
+  low = `low`
 }

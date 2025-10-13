@@ -1,3 +1,5 @@
 export enum SystemTypeEnum {
-  source, target, gateway
+  source = 'source',
+  target = 'target',
+  gateway = 'gateway'
 }

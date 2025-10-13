@@ -1,10 +1,10 @@
 import { Check, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Message } from "./Message";
 
-@Check(`is_valid_uuid(message_id)`)
+// @Check(`is_valid_uuid(message_id)`)
 @Check(`total_files_count >= 0`)
 @Check(`total_size_bytes >= 0`)
-@Check(`checksum IS NULL OR is_valid_sha256(checksum)`)
+// @Check(`checksum IS NULL OR is_valid_sha256(checksum)`)
 @Check(`receiving_at IS NULL OR created_at IS NULL OR receiving_at >= created_at`)
 @Check(`received_at IS NULL OR receiving_at IS NULL OR received_at >= receiving_at`)
 @Check(`sending_at IS NULL OR received_at IS NULL OR sending_at >= received_at`)
@@ -15,11 +15,13 @@ import { Message } from "./Message";
 export class MessageExt {
   @PrimaryGeneratedColumn({ name: `id` })
   id!: number
-  @OneToOne(() => Message, msg => msg.id)
-  @JoinColumn({ name: `message_id` })
+
+  @OneToOne(() => Message, msg => msg.id, { onDelete: "CASCADE", onUpdate: "CASCADE" })
+  @JoinColumn({ name: `message_id`, referencedColumnName: `messageId` })
   message!: Message
-  @Column(`varchar`, { name: `message_id`, nullable: false, unique: true })
-  messageId!: string
+
+  // @Column(`uuid`, { name: `message_id`, nullable: false, unique: true })
+  // messageId!: string
 
   @Column(`timestamp`, { name: `created_at` })
   createdAt!: Date
@@ -33,14 +35,14 @@ export class MessageExt {
   sent_at !: Date
   @Column(`timestamp`, { name: `delivered_at` })
   delivered_at !: Date
-  @Column(`timestamp`, { name: `read_at` })
+  @Column(`timestamp`, { nullable: true, name: `read_at` })
   read_at !: Date
 
   @Column(`integer`, { name: `total_files_count`, default: 0 })
   totalFilesCount!: number
   @Column(`bigint`, { name: `total_size_bytes`, default: 0 })
   totalSizeBytes!: number
-  @Column(`varchar`, { name: `checksum` })
+  @Column(`varchar`, { name: `checksum`, nullable: true })
   checksum !: string
   @Column(`text`, { name: `metadata` })
   metadata!: string
