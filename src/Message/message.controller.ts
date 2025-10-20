@@ -1,26 +1,49 @@
 import { inject, injectable, InjectionToken } from "tsyringe";
 import { MessageService } from "./message.service";
 import { Request, Response, Router } from "express";
+import { IMessageFilters } from "./message.interface";
+import { BaseController } from "./base.controller";
+import { log } from "console";
 
 export const MessageServiceToken: InjectionToken<MessageService> = "MessageService"
 export const RouterToken: InjectionToken<Router> = "RouterToken"
+
 @injectable()
-export class MessageController {
-  constructor(@inject(MessageServiceToken) private readonly messageService: MessageService,
-    @inject(RouterToken) private readonly router: Router
+export class MessageController extends BaseController {
+  constructor(
+    @inject(MessageServiceToken) private readonly messageService: MessageService,
+    @inject(RouterToken) private readonly router: Router,
   ) {
+    super()
     this.initializeRoutes()
   }
   private initializeRoutes(): void {
     this.router.get(`/messages`, this.getAllMessages.bind(this))
+    this.router.get(`/preset/names`, this.getPresetNames.bind(this))
+    this.router.get(`/headers`, this.getHeaders.bind(this))
+
+  }
+  async getPresetNames(req: Request, res: Response) {
+    const presets = await this.messageService.getPresetNames()
+    res.status(200).json(presets)
+  }
+
+  async getHeaders(req: Request, res: Response) {
+    const presetName = req.query.presetName as string
+    const headers = await this.messageService.getHeaders(presetName)
+    res.status(200).json(headers)
   }
 
   async getAllMessages(req: Request, res: Response) {
-    const messages = await this.messageService.getAllMessages()
+    const filters: IMessageFilters = this.parsePaginationParams(req.query)
+    log(filters)
+    const messages = await this.messageService.getMessages(filters)
     res.status(200).json(messages)
   }
+
 
   getRoutes() {
     return this.router
   }
+
 }

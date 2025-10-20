@@ -6,6 +6,7 @@ import { getRepository, Repository } from 'typeorm'
 import { Message } from './Entities/Message'
 import { MessageRepositoryToken, MessageService } from './Message/message.service'
 import { MessageController, MessageServiceToken, RouterToken } from './Message/message.controller'
+import { MessageConfigService, MessageConfigServiceToken } from './Message/message-config.service'
 
 async function bootstrap() {
   const app = express()
@@ -14,10 +15,13 @@ async function bootstrap() {
   app.use(cors())
 
   await connection
+
   container.register(RouterToken, { useValue: Router() })
   container.register(MessageRepositoryToken, { useValue: getRepository(Message) });
   container.register(MessageServiceToken, { useClass: MessageService });
+  container.register(MessageConfigServiceToken, { useClass: MessageConfigService })
   const messageController = container.resolve(MessageController)
+
 
   app.use(`/messages`, messageController.getRoutes())
 
