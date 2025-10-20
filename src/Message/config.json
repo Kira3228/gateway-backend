@@ -7,8 +7,8 @@
       "name": "Стандартный вид",
       "headers": [
         {
-          "text": "ID",
-          "value": "id",
+          "text": "ID сообщения",
+          "value": "messageId",
           "sortable": false,
           "isVisible": true,
           "width": 80

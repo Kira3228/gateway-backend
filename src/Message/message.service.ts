@@ -77,7 +77,7 @@ export class MessageService {
     log(filters)
     const page = Math.max(1, filters.page || 1)
     const limit = Math.min(100, Math.max(1, filters.limit || 30))
-    return await paginate(qb, page, limit, `events`)
+    return await paginate(qb, page, limit, `items`)
   }
 
   async getMessages(filters?: IMessageFilters): Promise<PaginatedResult<Message>> {
