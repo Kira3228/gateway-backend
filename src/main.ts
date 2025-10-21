@@ -7,6 +7,10 @@ import { Message } from './Entities/Message'
 import { MessageRepositoryToken, MessageService } from './Message/message.service'
 import { MessageController, MessageServiceToken, RouterToken } from './Message/message.controller'
 import { MessageConfigService, MessageConfigServiceToken } from './Message/message-config.service'
+import { MessageExtRepositoryToken, MessageExtService, MessageExtServiceToken } from './MessageExt/message-ext.service'
+import { MessageExt } from './Entities/MessageExt'
+import { MessageExtController } from './MessageExt/message-ext.controller'
+
 
 async function bootstrap() {
   const app = express()
@@ -23,8 +27,13 @@ async function bootstrap() {
   const messageController = container.resolve(MessageController)
 
 
-  app.use(`/messages`, messageController.getRoutes())
+  container.register(MessageExtRepositoryToken, { useValue: getRepository(MessageExt) })
+  container.register(MessageExtServiceToken, { useClass: MessageExtService })
+  const messageExtController = container.resolve(MessageExtController)
 
+
+  app.use(`/messages`, messageController.getRoutes())
+  app.use('/extended', messageExtController.getRoutes())
 
 
 
