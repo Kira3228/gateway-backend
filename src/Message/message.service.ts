@@ -97,7 +97,22 @@ export class MessageService {
   async getExtendedDataByMsgId(messageId: string) {
     const details = await this.messageExtRepo.find({
       where: { message: messageId },
-      relations: ["message"]
+      select: [
+        "checksum",
+        "createdAt",
+        "delivered_at",
+        "id",
+        "metadata",
+        "originalMetadata",
+        "read_at",
+        "received_at",
+        "received_at",
+        "receiving_at",
+        "sending_at",
+        "sent_at",
+        "totalFilesCount",
+        "totalSizeBytes",
+      ]
     })
     return details
   }
