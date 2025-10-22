@@ -7,14 +7,17 @@ import { paginate } from "../shared/utils/paginate";
 import { IDefaultFilters, IHeader } from "../shared/utils/types/IConfig";
 import { MessageConfigService, MessageConfigServiceToken } from "./message-config.service";
 import { log } from "console";
+import { MessageExt } from "../Entities/MessageExt";
 
+export const MessageExtRepositoryToken: InjectionToken<Repository<MessageExt>> = "MessageExtRepositoryToken"
 export const MessageRepositoryToken: InjectionToken<Repository<Message>> = "MessageRepository";
 
 @injectable()
 export class MessageService {
   constructor(
     @inject(MessageRepositoryToken) private readonly messageRepo: Repository<Message>,
-    @inject(MessageConfigServiceToken) private readonly configService: MessageConfigService
+    @inject(MessageExtRepositoryToken) private readonly messageExtRepo: Repository<MessageExt>,
+    @inject(MessageConfigServiceToken) private readonly configService: MessageConfigService,
   ) { }
 
   async getAllMessages() {
@@ -91,6 +94,13 @@ export class MessageService {
     }
   }
 
+  async getExtendedDataByMsgId(messageId: string) {
+    const details = await this.messageExtRepo.find({
+      where: { message: messageId },
+      relations: ["message"]
+    })
+    return details
+  }
 
 
 
