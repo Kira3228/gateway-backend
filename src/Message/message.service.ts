@@ -95,7 +95,7 @@ export class MessageService {
   }
 
   async getExtendedDataByMsgId(messageId: string) {
-    const details = await this.messageExtRepo.find({
+    const details = await this.messageExtRepo.findOne({
       where: { message: messageId },
       select: [
         "checksum",
@@ -116,7 +116,4 @@ export class MessageService {
     })
     return details
   }
-
-
-
 }
