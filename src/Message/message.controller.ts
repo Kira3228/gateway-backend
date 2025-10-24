@@ -22,6 +22,7 @@ export class MessageController extends BaseController {
     this.router.get(`/preset/names`, this.getPresetNames.bind(this))
     this.router.get(`/headers`, this.getHeaders.bind(this))
     this.router.get('/extended/:id', this.getExtendedData.bind(this))
+    this.router.get('/files/:id', this.getMessageFiles.bind(this))
 
 
   }
@@ -45,10 +46,16 @@ export class MessageController extends BaseController {
   async getExtendedData(req: Request, res: Response) {
     const msgId = req.params.id
     log(msgId)
-    const test = await this.messageService.getExtendedDataByMsgId(msgId)
-    res.status(200).json(test)
+    const extendeds = await this.messageService.getExtendedDataByMsgId(msgId)
+    res.status(200).json(extendeds)
   }
 
+  async getMessageFiles(req: Request, res: Response) {
+    const msgId = req.params.id
+    log(msgId)
+    const files = await this.messageService.getMessageFile(msgId)
+    res.status(200).json(files)
+  }
 
   getRoutes() {
     return this.router

@@ -4,11 +4,12 @@ import { connection } from './connection'
 import { container } from 'tsyringe'
 import { getRepository, Repository } from 'typeorm'
 import { Message } from './Entities/Message'
-import { MessageExtRepositoryToken, MessageRepositoryToken, MessageService } from './Message/message.service'
+import { MessageExtRepositoryToken, MessageFileRepositoryToken, MessageRepositoryToken, MessageService } from './Message/message.service'
 import { MessageController, MessageServiceToken, RouterToken } from './Message/message.controller'
 import { MessageConfigService, MessageConfigServiceToken } from './Message/message-config.service'
 import { MessageExt } from './Entities/MessageExt'
 import { MessageExtController } from './MessageExt/message-ext.controller'
+import { MessageFile } from './Entities/MessageFile'
 
 
 async function bootstrap() {
@@ -22,6 +23,7 @@ async function bootstrap() {
   container.register(RouterToken, { useValue: Router() })
   container.register(MessageRepositoryToken, { useValue: getRepository(Message) });
   container.register(MessageExtRepositoryToken, { useValue: getRepository(MessageExt) })
+  container.register(MessageFileRepositoryToken, { useValue: getRepository(MessageFile) })
   container.register(MessageServiceToken, { useClass: MessageService });
   container.register(MessageConfigServiceToken, { useClass: MessageConfigService })
   const messageController = container.resolve(MessageController)

@@ -14,7 +14,8 @@ export class MessageFile {
   @PrimaryGeneratedColumn({ name: `id` })
   id!: number
 
-  @ManyToOne(() => Message, msg => msg.id, { onDelete: "CASCADE", onUpdate: `CASCADE` })
+
+  @ManyToOne(() => Message, msg => msg.messageId, { onDelete: "CASCADE", onUpdate: `CASCADE` })
   @JoinColumn({ name: `message_id` })
   message!: Message
   @Column(`bigint`, { name: `message_id`, nullable: false })
@@ -31,7 +32,7 @@ export class MessageFile {
   @Column(`varchar`, { name: `checksum`, nullable: true })
   checksum!: string
   @Column(`varchar`, { name: `mime_type` })
-  memeType!: string
+  mimeType!: string
   @Column(`integer`, { name: `file_order`, default: 0 })
   fileOrder!: number
   @Column(`varchar`, { name: `description` })
