@@ -9,10 +9,12 @@ import { MessageConfigService, MessageConfigServiceToken } from "./message-confi
 import { log } from "console";
 import { MessageExt } from "../Entities/MessageExt";
 import { MessageFile } from "../Entities/MessageFile";
+import { MessageStatusHistory } from "../Entities/MessageStatusHistory";
 
 export const MessageExtRepositoryToken: InjectionToken<Repository<MessageExt>> = "MessageExtRepositoryToken"
 export const MessageRepositoryToken: InjectionToken<Repository<Message>> = "MessageRepositoryToken";
 export const MessageFileRepositoryToken: InjectionToken<Repository<MessageFile>> = "MessageFileRepositoryToken"
+export const MessageStatusHistoryToken: InjectionToken<Repository<MessageStatusHistory>> = "MessageStatusHistoryToken"
 
 @injectable()
 export class MessageService {
@@ -20,7 +22,8 @@ export class MessageService {
     @inject(MessageRepositoryToken) private readonly messageRepo: Repository<Message>,
     @inject(MessageExtRepositoryToken) private readonly messageExtRepo: Repository<MessageExt>,
     @inject(MessageConfigServiceToken) private readonly configService: MessageConfigService,
-    @inject(MessageFileRepositoryToken) private readonly messageFileRepo: Repository<MessageFile>
+    @inject(MessageFileRepositoryToken) private readonly messageFileRepo: Repository<MessageFile>,
+    @inject(MessageStatusHistoryToken) private readonly messageStatusHistoryRepo: Repository<MessageStatusHistory>
   ) { }
 
   async getAllMessages() {
@@ -129,5 +132,16 @@ export class MessageService {
       ]
     })
     return files
+  }
+
+  async getStatusHistory(messageId: number) {
+    log(`messageId`)
+    const history = await this.messageStatusHistoryRepo.find({
+      where: {
+        id: messageId
+      }, relations: [`user`]
+    })
+    log(`history`)
+    return history
   }
 }

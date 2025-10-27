@@ -2,14 +2,15 @@ import express, { Router } from 'express'
 import cors from 'cors'
 import { connection } from './connection'
 import { container } from 'tsyringe'
-import { getRepository, Repository } from 'typeorm'
+import { getRepository } from 'typeorm'
 import { Message } from './Entities/Message'
-import { MessageExtRepositoryToken, MessageFileRepositoryToken, MessageRepositoryToken, MessageService } from './Message/message.service'
-import { MessageController, MessageServiceToken, RouterToken } from './Message/message.controller'
+
 import { MessageConfigService, MessageConfigServiceToken } from './Message/message-config.service'
 import { MessageExt } from './Entities/MessageExt'
-import { MessageExtController } from './MessageExt/message-ext.controller'
 import { MessageFile } from './Entities/MessageFile'
+import { MessageStatusHistory } from './Entities/MessageStatusHistory'
+import { MessageExtRepositoryToken, MessageFileRepositoryToken, MessageRepositoryToken, MessageService, MessageStatusHistoryToken } from './Message/message.service'
+import { MessageController, MessageServiceToken, RouterToken } from './Message/message.controller'
 
 
 async function bootstrap() {
@@ -24,6 +25,7 @@ async function bootstrap() {
   container.register(MessageRepositoryToken, { useValue: getRepository(Message) });
   container.register(MessageExtRepositoryToken, { useValue: getRepository(MessageExt) })
   container.register(MessageFileRepositoryToken, { useValue: getRepository(MessageFile) })
+  container.register(MessageStatusHistoryToken, { useValue: getRepository(MessageStatusHistory) })
   container.register(MessageServiceToken, { useClass: MessageService });
   container.register(MessageConfigServiceToken, { useClass: MessageConfigService })
   const messageController = container.resolve(MessageController)
