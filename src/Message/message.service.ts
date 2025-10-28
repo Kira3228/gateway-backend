@@ -124,12 +124,13 @@ export class MessageService {
     return details
   }
 
-  async getMessageFile(messageId: string) {
+  async getMessageFile(messageId: string, sortField?: string, sortOrder?: "ASC" | "DESC") {
     const files = await this.messageFileRepo.find({
       where: { messageId },
       select: [
         "checksum", "created_at", "description", "fileName", "fileOrder", "filePath", "fileSizeBytes", "fileType", "isMetadataFile", "mimeType", "id", "messageId",
-      ]
+      ],
+      order: sortField ? { [sortField]: sortOrder ?? "ASC" } : undefined
     })
     return files
   }
