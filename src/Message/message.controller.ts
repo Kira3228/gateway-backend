@@ -18,14 +18,12 @@ export class MessageController extends BaseController {
     this.initializeRoutes()
   }
   private initializeRoutes(): void {
-    this.router.get(`/messages`, this.getAllMessages.bind(this))
+    this.router.get(`/`, this.getAllMessages.bind(this))
     this.router.get(`/preset/names`, this.getPresetNames.bind(this))
     this.router.get(`/headers`, this.getHeaders.bind(this))
     this.router.get('/extended/:id', this.getExtendedData.bind(this))
     this.router.get('/files/:id', this.getMessageFiles.bind(this))
     this.router.get('/history/:id', this.getHistory.bind(this))
-
-
   }
   async getPresetNames(req: Request, res: Response) {
     const presets = await this.messageService.getPresetNames()
@@ -44,6 +42,8 @@ export class MessageController extends BaseController {
     const messages = await this.messageService.getMessages(filters)
     res.status(200).json(messages)
   }
+
+  
   async getExtendedData(req: Request, res: Response) {
     const msgId = req.params.id
     log(msgId)
