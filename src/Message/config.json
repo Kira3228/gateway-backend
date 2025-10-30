@@ -14,36 +14,36 @@
           "width": 80
         },
         {
-          "text": "Путь",
-          "value": "filePath",
+          "text": "Тип сообщения",
+          "value": "messageType",
           "sortable": true,
           "isVisible": true,
           "width": 80
         },
         {
-          "text": "Inode",
-          "value": "inode",
+          "text": "Приоритет",
+          "value": "priority",
           "sortable": true,
           "isVisible": true,
           "width": 80
         },
         {
-          "text": "Размер",
-          "value": "fileSize",
+          "text": "Метка безопасности",
+          "value": "securityLabel",
           "sortable": true,
           "isVisible": true,
           "width": 80
         },
         {
-          "text": "Макс. глубина цепочки",
-          "value": "maxChainDepth",
+          "text": "Номер сообщения",
+          "value": "messageNumber",
           "sortable": true,
           "isVisible": true,
           "width": 80
         },
         {
-          "text": "Мин. глубина цепочки",
-          "value": "minChainDepth",
+          "text": "Объект",
+          "value": "subject",
           "sortable": true,
           "isVisible": true,
           "width": 80
