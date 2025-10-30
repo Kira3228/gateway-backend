@@ -43,7 +43,7 @@ export class MessageController extends BaseController {
     res.status(200).json(messages)
   }
 
-  
+
   async getExtendedData(req: Request, res: Response) {
     const msgId = req.params.id
     log(msgId)
