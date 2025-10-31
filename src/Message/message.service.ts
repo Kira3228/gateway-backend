@@ -125,6 +125,7 @@ export class MessageService {
   }
 
   async getMessageFile(messageId: string, sortField?: string, sortOrder?: "ASC" | "DESC") {
+ 
     const files = await this.messageFileRepo.find({
       where: { messageId },
       select: [
@@ -136,13 +137,11 @@ export class MessageService {
   }
 
   async getStatusHistory(messageId: number) {
-    log(`messageId`)
     const history = await this.messageStatusHistoryRepo.find({
       where: {
         id: messageId
       }, relations: [`user`]
     })
-    log(`history`)
     return history
   }
 }

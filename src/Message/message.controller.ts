@@ -53,8 +53,9 @@ export class MessageController extends BaseController {
 
   async getMessageFiles(req: Request, res: Response) {
     const msgId = req.params.id
-    log(msgId)
-    const files = await this.messageService.getMessageFile(msgId)
+    const order: { sortField?: string, sortOrder?: "ASC" | "DESC" } = req.query
+    log(order)
+    const files = await this.messageService.getMessageFile(msgId, order.sortField, order.sortOrder)
     res.status(200).json(files)
   }
 
