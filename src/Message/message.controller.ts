@@ -4,6 +4,8 @@ import { Request, Response, Router } from "express";
 import { IMessageFilters } from "./message.interface";
 import { BaseController } from "./base.controller";
 import { log } from "console";
+import { FileDto, HistoryDto } from "./dto";
+import { PassThrough } from "stream";
 
 export const MessageServiceToken: InjectionToken<MessageService> = "MessageService"
 export const RouterToken: InjectionToken<Router> = "RouterToken"
@@ -24,6 +26,9 @@ export class MessageController extends BaseController {
     this.router.get('/extended/:id', this.getExtendedData.bind(this))
     this.router.get('/files/:id', this.getMessageFiles.bind(this))
     this.router.get('/history/:id', this.getHistory.bind(this))
+    this.router.post('/files/create', this.createFiles.bind(this))
+    this.router.post('/history/create', this.createStatusHistory.bind(this))
+
   }
   async getPresetNames(req: Request, res: Response) {
     const presets = await this.messageService.getPresetNames()
@@ -61,10 +66,26 @@ export class MessageController extends BaseController {
 
   async getHistory(req: Request, res: Response) {
     const messageId = Number(req.params.id)
-    log(messageId)
     const history = await this.messageService.getStatusHistory(messageId)
     res.status(200).json(history)
   }
+
+  async createFiles(req: Request, res: Response) {
+    try {
+      const dto: FileDto[] = req.body
+      const files = await this.messageService.createFiles(dto)
+      res.status(200).json(files)
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+
+  async createStatusHistory(req: Request, res: Response) {
+    const dto: HistoryDto[] = req.body
+    const history = await this.messageService.createStatusHistory(dto)
+    res.status(200).json(history)
+  }
+
 
 
   getRoutes() {

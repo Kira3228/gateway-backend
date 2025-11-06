@@ -1,5 +1,5 @@
 import { inject, injectable, InjectionToken } from "tsyringe";
-import { MetadataWithSuchNameAlreadyExistsError, Repository, SelectQueryBuilder } from "typeorm";
+import { In, MetadataWithSuchNameAlreadyExistsError, Repository, SelectQueryBuilder } from "typeorm";
 import { Message } from "../Entities/Message";
 import { PaginatedResult } from "../shared/utils/types/common.interface";
 import { IMessageFilters } from "./message.interface";
@@ -10,6 +10,7 @@ import { log } from "console";
 import { MessageExt } from "../Entities/MessageExt";
 import { MessageFile } from "../Entities/MessageFile";
 import { MessageStatusHistory } from "../Entities/MessageStatusHistory";
+import { FileDto, HistoryDto } from "./dto";
 
 export const MessageExtRepositoryToken: InjectionToken<Repository<MessageExt>> = "MessageExtRepositoryToken"
 export const MessageRepositoryToken: InjectionToken<Repository<Message>> = "MessageRepositoryToken";
@@ -125,9 +126,11 @@ export class MessageService {
   }
 
   async getMessageFile(messageId: string, sortField?: string, sortOrder?: "ASC" | "DESC") {
- 
+
     const files = await this.messageFileRepo.find({
-      where: { messageId },
+      where: {
+        messageId: messageId,
+      },
       select: [
         "checksum", "created_at", "description", "fileName", "fileOrder", "filePath", "fileSizeBytes", "fileType", "isMetadataFile", "mimeType", "id", "messageId",
       ],
@@ -136,12 +139,43 @@ export class MessageService {
     return files
   }
 
-  async getStatusHistory(messageId: number) {
+  async getStatusHistory(
+    messageId: number, 
+    oldStatuses?: string[], 
+    newStatuses?: string[], 
+    sortField?: string, 
+    sortOrder?: "ASC" | "DECS",) {
+    const where: Partial<{
+      messageId: number
+      oldStatuses: any
+      newStatuses: any
+    }> = { messageId: messageId }
+
+    if (oldStatuses && oldStatuses.length > 0) {
+      where.oldStatuses = In(oldStatuses)
+    }
+
+    if (newStatuses && newStatuses.length > 0) {
+      where.newStatuses = In(newStatuses)
+    }
+
     const history = await this.messageStatusHistoryRepo.find({
-      where: {
-        id: messageId
-      }, relations: [`user`]
+      where: where,
+      relations: [`user`],
+      order: sortField ? { [sortField]: sortOrder ?? "ASC" } : undefined
     })
+    return history
+  }
+
+  async createFiles(dto: FileDto[]) {
+    const file = await this.messageFileRepo.create(dto)
+    await this.messageFileRepo.save(file)
+    return file
+  }
+
+  async createStatusHistory(dto: HistoryDto[]) {
+    const history = await this.messageStatusHistoryRepo.create(dto)
+    await this.messageStatusHistoryRepo.save(history)
     return history
   }
 }
