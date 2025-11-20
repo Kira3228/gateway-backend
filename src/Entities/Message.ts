@@ -32,32 +32,43 @@ export class Message {
     nullable: false
   })
   messageType!: MessageTypeEnum
+  
   @Column(`enum`, { name: `message_category`, enum: MessageCategoryEnum, enumName: `message_category_enum`, nullable: false })
   messageCategory!: MessageCategoryEnum
+
   @Column(`enum`, { enum: MessageStatusEnum, enumName: `message_status_enum`, nullable: false, name: `status` })
   status!: MessageStatusEnum
+
   @Column(`integer`, { default: 5, name: `priority` })
   priority!: number
+
   @Column(`boolean`, { name: `metadata_parsed`, default: false })
   metadataParsed!: boolean
+
   @Column(`varchar`, { name: `subject` })
   subject!: string
+
   @Column(`enum`, { name: `security_label`, enum: SecurityLabelEnum, enumName: `security_label_enum` })
   securityLabel!: SecurityLabelEnum
+  
   @Column(`varchar`, { name: `message_number` })
   messageNumber!: string
+
   @Column(`integer`, { name: `message_copies`, default: 1 })
   messageCopies!: number
+
   @Column(`integer`, { name: `number_copy`, default: 1 })
   numberCopy!: number
+
   @Column(`varchar`, { name: `sender_number` })
   senderName!: string
+
   @Column(`timestamp`, { name: `created_at`, default: () => `CURRENT_TIMESTAMP` })
   createdAt!: Date
+
   @Column(`timestamp`, { name: `updated_at`, default: () => `CURRENT_TIMESTAMP` })
   updatedAt!: Date
 
-  //СВЯЗИ
   @ManyToOne(() => User, user => user.id, { nullable: false, onDelete: "CASCADE", onUpdate: "CASCADE" })
   @JoinColumn({ name: `user_from_id` })
   userFrom!: User

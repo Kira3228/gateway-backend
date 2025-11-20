@@ -1,4 +1,4 @@
-import { Check, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Check, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Message } from "./Message";
 
 @Check(`LENGTH(file_name) > 0`)
@@ -14,12 +14,11 @@ export class MessageFile {
   @PrimaryGeneratedColumn({ name: `id` })
   id!: number
 
-
   @ManyToOne(() => Message, msg => msg.messageId, { onDelete: "CASCADE", onUpdate: `CASCADE` })
   @JoinColumn({ name: `message_id` })
   message!: Message
-  @Column(`bigint`, { name: `message_id`, nullable: false })
-  messageId!: number
+  @Column(`uuid`, { name: `message_id`, nullable: false })
+  messageId!: string
 
   @Column(`varchar`, { name: `file_name`, nullable: false, })
   fileName!: string

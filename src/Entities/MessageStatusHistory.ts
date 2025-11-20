@@ -27,15 +27,17 @@ export class MessageStatusHistory {
   @Column(`text`, { name: `metadata` })
   metadata!: string
 
-  @ManyToOne(() => Message, msg => msg.id, { onDelete: "CASCADE", onUpdate: `CASCADE` })
+  @ManyToOne(() => Message, msg => msg.messageId, { onDelete: "CASCADE", onUpdate: `CASCADE` })
   @JoinColumn({ name: `message_id` })
   message!: Message
-  @Column(`bigint`, { nullable: false, name: `message_id` })
-  messageId!: number
+
+  @Column(`uuid`, { nullable: false, name: `message_id` })
+  messageId!: string
 
   @ManyToOne(() => User, user => user.id, { onDelete: "SET NULL", onUpdate: "CASCADE" })
   @JoinColumn({ name: `changed_by_user_id` })
   user!: User
+
   @Column(`bigint`, { name: `changed_by_user_id` })
   changedByUserId!: number
 } 

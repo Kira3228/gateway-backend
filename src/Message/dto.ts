@@ -4,7 +4,6 @@ import { MessageStatusHistory } from "../Entities/MessageStatusHistory"
 
 export class FileDto {
   id: number
-  messageId: number
   fileName: string
   filePath: string
   fileType: string
@@ -23,6 +22,5 @@ export class HistoryDto {
   reason: string
   changeDatetime: Date
   metadata: string
-  messageId: number
   changedByUserId: number
 }
