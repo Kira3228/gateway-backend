@@ -16,7 +16,7 @@ export class MessageExt {
   @PrimaryGeneratedColumn({ name: `id` })
   id!: number
 
-  @OneToOne(() => Message, msg => msg.id, { onDelete: "CASCADE", onUpdate: "CASCADE" })
+  @OneToOne(() => Message, msg => msg.messageId, { onDelete: "CASCADE", onUpdate: "CASCADE" })
   @JoinColumn({ name: `message_id`, referencedColumnName: `messageId` })
   message!: Message
 
@@ -25,27 +25,37 @@ export class MessageExt {
 
   @Column(`timestamp`, { name: `created_at` })
   createdAt!: Date
+
   @Column(`timestamp`, { name: `receiving_at` })
   receiving_at!: Date
+
   @Column(`timestamp`, { name: `received_at` })
   received_at!: Date
+
   @Column(`timestamp`, { name: `sending_at` })
   sending_at !: Date
+
   @Column(`timestamp`, { name: `sent_at` })
   sent_at !: Date
+
   @Column(`timestamp`, { name: `delivered_at` })
   delivered_at !: Date
+
   @Column(`timestamp`, { nullable: true, name: `read_at` })
   read_at !: Date
 
   @Column(`integer`, { name: `total_files_count`, default: 0 })
   totalFilesCount!: number
+
   @Column(`bigint`, { name: `total_size_bytes`, default: 0 })
   totalSizeBytes!: number
+
   @Column(`varchar`, { name: `checksum`, nullable: true })
   checksum !: string
+
   @Column(`text`, { name: `metadata` })
   metadata!: string
+
   @Column(`text`, { name: `original_metadata` })
   originalMetadata!: string
 }
