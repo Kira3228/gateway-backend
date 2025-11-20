@@ -11,6 +11,7 @@ import { MessageFile } from './Entities/MessageFile'
 import { MessageStatusHistory } from './Entities/MessageStatusHistory'
 import { MessageExtRepositoryToken, MessageFileRepositoryToken, MessageRepositoryToken, MessageService, MessageStatusHistoryToken } from './Message/message.service'
 import { MessageController, MessageServiceToken, RouterToken } from './Message/message.controller'
+import { parseQueryArrays, } from './shared/middlewares/queryArrayParser'
 
 
 async function bootstrap() {
@@ -32,11 +33,6 @@ async function bootstrap() {
 
 
   app.use(`/messages`, messageController.getRoutes())
-
-
-
-
-
 
 
   app.listen(PORT, () => {

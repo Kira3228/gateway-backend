@@ -1,5 +1,5 @@
 import { inject, injectable, InjectionToken } from "tsyringe";
-import { In, MetadataWithSuchNameAlreadyExistsError, Repository, SelectQueryBuilder } from "typeorm";
+import { createQueryBuilder, In, MetadataWithSuchNameAlreadyExistsError, Repository, SelectQueryBuilder } from "typeorm";
 import { Message } from "../Entities/Message";
 import { PaginatedResult } from "../shared/utils/types/common.interface";
 import { IMessageFilters } from "./message.interface";
@@ -11,6 +11,8 @@ import { MessageExt } from "../Entities/MessageExt";
 import { MessageFile } from "../Entities/MessageFile";
 import { MessageStatusHistory } from "../Entities/MessageStatusHistory";
 import { FileDto, HistoryDto } from "./dto";
+import { IHistoryFilters, IHistorySort } from "./types/IHistoryFilters";
+import { arrayParser } from "../shared/utils/arrayParser";
 
 export const MessageExtRepositoryToken: InjectionToken<Repository<MessageExt>> = "MessageExtRepositoryToken"
 export const MessageRepositoryToken: InjectionToken<Repository<Message>> = "MessageRepositoryToken";
@@ -125,8 +127,7 @@ export class MessageService {
     return details
   }
 
-  async getMessageFile(messageId: string, sortField?: string, sortOrder?: "ASC" | "DESC") {
-
+  async getMessageFile(messageId: string, sortField?: string, sortOrder?: "ASC" | "DESC"): Promise<MessageFile[]> {
     const files = await this.messageFileRepo.find({
       where: {
         messageId: messageId,
@@ -139,33 +140,89 @@ export class MessageService {
     return files
   }
 
+  async getMessageFilesByQb(_id: string, limit: number, page: number = 1): Promise<MessageFile[]> {
+    const skip = limit * (page - 1)
+    const qb = await this.messageFileRepo
+      .createQueryBuilder(`files`)
+      .skip(skip)
+      .take(limit)
+      .where(`files.messageId = :_id`, { _id: _id })
+
+    const result = await qb.getMany()
+    return result
+  }
+
+
+
   async getStatusHistory(
-    messageId: number, 
-    oldStatuses?: string[], 
-    newStatuses?: string[], 
-    sortField?: string, 
-    sortOrder?: "ASC" | "DECS",) {
+    messageId: number,
+    filters: IHistoryFilters,
+    _page: number,
+    _limit: number
+  ) {
+
     const where: Partial<{
       messageId: number
-      oldStatuses: any
-      newStatuses: any
-    }> = { messageId: messageId }
+      oldStatus: any
+      newStatus: any
+      user: {
+        userType: any
+      }
+    }> = { messageId: messageId, }
 
-    if (oldStatuses && oldStatuses.length > 0) {
-      where.oldStatuses = In(oldStatuses)
+    if (filters.oldStatuses && filters.oldStatuses.length > 0) {
+      where.oldStatus = In(arrayParser(filters.oldStatuses))
     }
 
-    if (newStatuses && newStatuses.length > 0) {
-      where.newStatuses = In(newStatuses)
+    if (filters.newStatuses && filters.newStatuses.length > 0) {
+      where.newStatus = In(arrayParser(filters.newStatuses))
+    }
+
+    if (filters.userTypes && filters.userTypes.length > 0) {
+      where.user = {
+        userType: In(arrayParser(filters.userTypes))
+      }
     }
 
     const history = await this.messageStatusHistoryRepo.find({
-      where: where,
+      where: {
+        ...where,
+      },
       relations: [`user`],
-      order: sortField ? { [sortField]: sortOrder ?? "ASC" } : undefined
+      order: filters.sortField ? { [filters.sortField]: filters.sortOrder ?? "ASC" } : undefined
+
     })
     return history
   }
+
+  async getHistoryByQb({ _messageId }: { _messageId: number; },): Promise<MessageStatusHistory[]> {
+    const qb = await this.messageStatusHistoryRepo.createQueryBuilder(`history`)
+      .leftJoinAndSelect(`history.user`, 'user').where(`history.messageId = :id`, { id: _messageId })
+    // .orderBy({ 'history.id': 'DESC', "history.reason": `DESC` })
+    const result = await qb.getMany()
+
+    return result
+    log(result)
+  }
+
+
+  test(asd: {}) {
+    const map: Record<string, string> = {
+    }
+
+    const filters = {
+
+    }
+
+    const zxc = {
+      "user.fullname": filters[`fullname`],
+
+    }
+  }
+
+
+
+
 
   async createFiles(dto: FileDto[]) {
     const file = await this.messageFileRepo.create(dto)

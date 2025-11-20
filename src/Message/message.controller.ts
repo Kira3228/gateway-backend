@@ -6,6 +6,7 @@ import { BaseController } from "./base.controller";
 import { log } from "console";
 import { FileDto, HistoryDto } from "./dto";
 import { PassThrough } from "stream";
+import { IHistoryFilters } from "./types/IHistoryFilters";
 
 export const MessageServiceToken: InjectionToken<MessageService> = "MessageService"
 export const RouterToken: InjectionToken<Router> = "RouterToken"
@@ -51,7 +52,6 @@ export class MessageController extends BaseController {
 
   async getExtendedData(req: Request, res: Response) {
     const msgId = req.params.id
-    log(msgId)
     const extendeds = await this.messageService.getExtendedDataByMsgId(msgId)
     res.status(200).json(extendeds)
   }
@@ -60,14 +60,29 @@ export class MessageController extends BaseController {
     const msgId = req.params.id
     const order: { sortField?: string, sortOrder?: "ASC" | "DESC" } = req.query
     log(order)
-    const files = await this.messageService.getMessageFile(msgId, order.sortField, order.sortOrder)
+    // const files = await this.messageService.getMessageFile(msgId, order.sortField, order.sortOrder)
+    const files = await this.messageService.getMessageFilesByQb(msgId, 8, 1)
     res.status(200).json(files)
+
+    // return await this.messageService.getMessageFilesByQb()
   }
+
 
   async getHistory(req: Request, res: Response) {
     const messageId = Number(req.params.id)
-    const history = await this.messageService.getStatusHistory(messageId)
+    const filters: IHistoryFilters = {
+      oldStatuses: req.query.oldStatuses as string,
+      newStatuses: req.query.newStatuses as string,
+      sortField: req.query.sortField as string,
+      sortOrder: req.query.sortOrder as "ASC" | "DECS",
+      userTypes: req.query.userTypes as string
+    }
+    log(filters)
+    const history = await this.messageService.getHistoryByQb({ _messageId: messageId })
     res.status(200).json(history)
+
+
+    // return await this.messageService.getHistoryByQb({ _messageId: 1 })
   }
 
   async createFiles(req: Request, res: Response) {
@@ -85,8 +100,6 @@ export class MessageController extends BaseController {
     const history = await this.messageService.createStatusHistory(dto)
     res.status(200).json(history)
   }
-
-
 
   getRoutes() {
     return this.router
