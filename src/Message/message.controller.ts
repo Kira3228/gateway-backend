@@ -7,6 +7,7 @@ import { log } from "console";
 import { FileDto, HistoryDto } from "./dto";
 import { PassThrough } from "stream";
 import { IHistoryFilters } from "./types/IHistoryFilters";
+import { IMessageFilesQueryParams } from "./types/IMessageFilesQueryParams";
 
 export const MessageServiceToken: InjectionToken<MessageService> = "MessageService"
 export const RouterToken: InjectionToken<Router> = "RouterToken"
@@ -57,14 +58,16 @@ export class MessageController extends BaseController {
   }
 
   async getMessageFiles(req: Request, res: Response) {
-    const msgId = req.params.id
-    const order: { sortField?: string, sortOrder?: "ASC" | "DESC" } = req.query
-    log(order)
-    // const files = await this.messageService.getMessageFile(msgId, order.sortField, order.sortOrder)
-    const files = await this.messageService.getMessageFilesByQb(msgId, 8, 1)
+    const messageId = String(req.params.id)
+    const queryParams: IMessageFilesQueryParams = {
+      createdAtOrder: req.query.createdAtOrder as "" | "ASC" | "DESC",
+      fileNameOrder: req.query.fileNameOrder as "" | "ASC" | "DESC",
+      fileSizeBytesOrder: req.query.fileSizeBytesOrder as "" | "ASC" | "DESC",
+      limit: Number(req.query.limit),
+      page: Number(req.query.page)
+    }
+    const files = await this.messageService.getMessageFilesByQb(messageId, queryParams)
     res.status(200).json(files)
-
-    // return await this.messageService.getMessageFilesByQb()
   }
 
 

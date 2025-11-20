@@ -13,6 +13,7 @@ import { MessageStatusHistory } from "../Entities/MessageStatusHistory";
 import { FileDto, HistoryDto } from "./dto";
 import { IHistoryFilters, IHistorySort } from "./types/IHistoryFilters";
 import { arrayParser } from "../shared/utils/arrayParser";
+import { IMessageFilesQueryParams } from "./types/IMessageFilesQueryParams";
 
 export const MessageExtRepositoryToken: InjectionToken<Repository<MessageExt>> = "MessageExtRepositoryToken"
 export const MessageRepositoryToken: InjectionToken<Repository<Message>> = "MessageRepositoryToken";
@@ -140,13 +141,25 @@ export class MessageService {
     return files
   }
 
-  async getMessageFilesByQb(_id: string, limit: number, page: number = 1): Promise<MessageFile[]> {
-    const skip = limit * (page - 1)
-    const qb = await this.messageFileRepo
+  async getMessageFilesByQb(_messageId: string, _params: IMessageFilesQueryParams): Promise<MessageFile[]> {
+    const skip = _params.limit * (_params.page - 1)
+    const orderBy: any = {}
+    log(`orderBy:`, orderBy)
+    if (_params.createdAtOrder) {
+      orderBy['files.created_at'] = _params.createdAtOrder
+    }
+    if (_params.fileNameOrder) {
+      orderBy['files.file_name'] = _params.fileNameOrder
+    }
+    if (_params.fileSizeBytesOrder) {
+      orderBy['files.file_size_bytes'] = _params.fileSizeBytesOrder
+    }
+    const qb = this.messageFileRepo
       .createQueryBuilder(`files`)
       .skip(skip)
-      .take(limit)
-      .where(`files.messageId = :_id`, { _id: _id })
+      .take(_params.limit)
+      .where(`files.messageId = :messageId`, { messageId: _messageId })
+      .orderBy(orderBy)
 
     const result = await qb.getMany()
     return result
@@ -196,7 +209,7 @@ export class MessageService {
   }
 
   async getHistoryByQb({ _messageId }: { _messageId: number; },): Promise<MessageStatusHistory[]> {
-    const qb = await this.messageStatusHistoryRepo.createQueryBuilder(`history`)
+    const qb = this.messageStatusHistoryRepo.createQueryBuilder(`history`)
       .leftJoinAndSelect(`history.user`, 'user').where(`history.messageId = :id`, { id: _messageId })
     // .orderBy({ 'history.id': 'DESC', "history.reason": `DESC` })
     const result = await qb.getMany()
@@ -222,13 +235,13 @@ export class MessageService {
 
 
   async createFiles(dto: FileDto[]) {
-    const file = await this.messageFileRepo.create(dto)
+    const file = this.messageFileRepo.create(dto)
     await this.messageFileRepo.save(file)
     return file
   }
 
   async createStatusHistory(dto: HistoryDto[]) {
-    const history = await this.messageStatusHistoryRepo.create(dto)
+    const history = this.messageStatusHistoryRepo.create(dto)
     await this.messageStatusHistoryRepo.save(history)
     return history
   }
