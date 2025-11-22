@@ -1,4 +1,4 @@
-import { LimitOnUpdateNotSupportedError, QueryBuilder, SelectQueryBuilder } from "typeorm";
+import { SelectQueryBuilder } from "typeorm";
 import { NotFoundError } from "../../Errors/error";
 
 export const paginate = async <T>(qb: SelectQueryBuilder<T>,

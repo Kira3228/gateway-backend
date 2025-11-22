@@ -1,5 +1,5 @@
 import { inject, injectable, InjectionToken } from "tsyringe";
-import { createQueryBuilder, In, MetadataWithSuchNameAlreadyExistsError, Repository, SelectQueryBuilder } from "typeorm";
+import { In, Repository, SelectQueryBuilder } from "typeorm";
 import { Message } from "../Entities/Message";
 import { PaginatedResult } from "../shared/utils/types/common.interface";
 import { IMessageFilters } from "./message.interface";
@@ -94,11 +94,12 @@ export class MessageService {
     return await paginate(qb, page, limit, `items`)
   }
 
-  async getMessages(filters?: IMessageFilters): Promise<PaginatedResult<Message>> {
+  async getMessages(filters?: IMessageFilters): Promise<Message[]> {
     try {
       const qb = this.createBaseQuery()
+      const messages = qb.getMany()
       const paginate = await this.paginateQuery(qb, filters)
-      return paginate
+      return messages
     }
     catch (error) {
       console.error(error);
@@ -142,7 +143,8 @@ export class MessageService {
   }
 
   async getMessageFilesByQb(_messageId: string, _params: IMessageFilesQueryParams): Promise<MessageFile[]> {
-    const skip = _params.limit * (_params.page - 1)
+    // const skip = _params.limit * (_params.page - 1)
+    const skip = 3
     const orderBy: any = {}
     log(`orderBy:`, orderBy)
     if (_params.createdAtOrder) {
@@ -157,15 +159,13 @@ export class MessageService {
     const qb = this.messageFileRepo
       .createQueryBuilder(`files`)
       .skip(skip)
-      .take(_params.limit)
+      .take(30)
       .where(`files.messageId = :messageId`, { messageId: _messageId })
       .orderBy(orderBy)
 
     const result = await qb.getMany()
     return result
   }
-
-
 
   async getStatusHistory(
     messageId: number,
@@ -211,11 +211,9 @@ export class MessageService {
   async getHistoryByQb({ _messageId }: { _messageId: number; },): Promise<MessageStatusHistory[]> {
     const qb = this.messageStatusHistoryRepo.createQueryBuilder(`history`)
       .leftJoinAndSelect(`history.user`, 'user').where(`history.messageId = :id`, { id: _messageId })
-    // .orderBy({ 'history.id': 'DESC', "history.reason": `DESC` })
     const result = await qb.getMany()
 
     return result
-    log(result)
   }
 
 

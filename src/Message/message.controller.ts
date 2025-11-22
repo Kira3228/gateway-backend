@@ -22,7 +22,7 @@ export class MessageController extends BaseController {
     this.initializeRoutes()
   }
   private initializeRoutes(): void {
-    this.router.get(`/`, this.getAllMessages.bind(this))
+    this.router.get(`/all`, this.getAllMessages.bind(this))
     this.router.get(`/preset/names`, this.getPresetNames.bind(this))
     this.router.get(`/headers`, this.getHeaders.bind(this))
     this.router.get('/extended/:id', this.getExtendedData.bind(this))
@@ -45,7 +45,6 @@ export class MessageController extends BaseController {
 
   async getAllMessages(req: Request, res: Response) {
     const filters: IMessageFilters = this.parsePaginationParams(req.query)
-    log(filters)
     const messages = await this.messageService.getMessages(filters)
     res.status(200).json(messages)
   }
