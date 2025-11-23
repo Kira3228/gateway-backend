@@ -71,7 +71,7 @@ export class MessageController extends BaseController {
 
 
   async getHistory(req: Request, res: Response) {
-    const messageId = Number(req.params.id)
+    const messageId = req.params.id
     const filters: IHistoryFilters = {
       oldStatuses: req.query.oldStatuses as string,
       newStatuses: req.query.newStatuses as string,
@@ -80,7 +80,9 @@ export class MessageController extends BaseController {
       userTypes: req.query.userTypes as string
     }
     log(filters)
-    const history = await this.messageService.getHistoryByQb({ _messageId: messageId })
+    log(messageId)
+
+    const history = await this.messageService.getHistoryByQb({ _messageId: messageId }, filters)
     res.status(200).json(history)
 
 

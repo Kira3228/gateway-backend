@@ -143,8 +143,8 @@ export class MessageService {
   }
 
   async getMessageFilesByQb(_messageId: string, _params: IMessageFilesQueryParams): Promise<MessageFile[]> {
-    // const skip = _params.limit * (_params.page - 1)
-    const skip = 3
+    _params.limit = 3
+    const skip = _params.limit * (_params.page - 1)
     const orderBy: any = {}
     log(`orderBy:`, orderBy)
     if (_params.createdAtOrder) {
@@ -208,9 +208,23 @@ export class MessageService {
     return history
   }
 
-  async getHistoryByQb({ _messageId }: { _messageId: number; },): Promise<MessageStatusHistory[]> {
+  async getHistoryByQb({ _messageId }: { _messageId: string; }, filters: IHistoryFilters,): Promise<MessageStatusHistory[]> {
+    const newStatuses = arrayParser(filters.newStatuses)
+    const oldStatuses = arrayParser(filters.oldStatuses)
+    log(newStatuses)
+    log(oldStatuses)
+
+
     const qb = this.messageStatusHistoryRepo.createQueryBuilder(`history`)
       .leftJoinAndSelect(`history.user`, 'user').where(`history.messageId = :id`, { id: _messageId })
+
+    if (newStatuses && newStatuses.length > 0) {
+      qb.andWhere(`history.newStatus IN (:...newStatuses)`, { newStatuses });
+    }
+    if (oldStatuses && oldStatuses.length > 0) {
+      qb.andWhere(`history.oldStatus IN (:...oldStatuses)`, { oldStatuses });
+    }
+
     const result = await qb.getMany()
 
     return result
