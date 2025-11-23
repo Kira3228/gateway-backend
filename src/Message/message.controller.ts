@@ -75,13 +75,8 @@ export class MessageController extends BaseController {
     const filters: IHistoryFilters = {
       oldStatuses: req.query.oldStatuses as string,
       newStatuses: req.query.newStatuses as string,
-      sortField: req.query.sortField as string,
-      sortOrder: req.query.sortOrder as "ASC" | "DECS",
       userTypes: req.query.userTypes as string
     }
-    log(filters)
-    log(messageId)
-
     const history = await this.messageService.getHistoryByQb({ _messageId: messageId }, filters)
     res.status(200).json(history)
 

@@ -202,7 +202,6 @@ export class MessageService {
         ...where,
       },
       relations: [`user`],
-      order: filters.sortField ? { [filters.sortField]: filters.sortOrder ?? "ASC" } : undefined
 
     })
     return history
@@ -211,9 +210,6 @@ export class MessageService {
   async getHistoryByQb({ _messageId }: { _messageId: string; }, filters: IHistoryFilters,): Promise<MessageStatusHistory[]> {
     const newStatuses = arrayParser(filters.newStatuses)
     const oldStatuses = arrayParser(filters.oldStatuses)
-    log(newStatuses)
-    log(oldStatuses)
-
 
     const qb = this.messageStatusHistoryRepo.createQueryBuilder(`history`)
       .leftJoinAndSelect(`history.user`, 'user').where(`history.messageId = :id`, { id: _messageId })
