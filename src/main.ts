@@ -3,16 +3,14 @@ import cors from 'cors'
 import { connection } from './connection'
 import { container } from 'tsyringe'
 import { getRepository } from 'typeorm'
-import { Message } from './Entities/Message'
-
+import { Message, MessageExt, MessageFile, MessageStatusHistory } from './Entities'
 import { MessageConfigService, MessageConfigServiceToken } from './Message/message-config.service'
-import { MessageExt } from './Entities/MessageExt'
-import { MessageFile } from './Entities/MessageFile'
-import { MessageStatusHistory } from './Entities/MessageStatusHistory'
-import { MessageExtRepositoryToken, MessageFileRepositoryToken, MessageRepositoryToken, MessageService, MessageStatusHistoryToken } from './Message/message.service'
+import { MessageRepositoryToken, MessageService, } from './Message/message.service'
 import { MessageController, MessageServiceToken, RouterToken } from './Message/message.controller'
-import { parseQueryArrays, } from './shared/middlewares/queryArrayParser'
-
+import { MessageExtRepositoryToken, MessageExtService, MessageExtServiceToken } from './Message/extended-data.service'
+import { MessageStatusHistoryRepositoryToken, MessageStatusHistoryService, MessageStatusHistoryServiceToken, } from './Message/status-history.service'
+import { MessageFileRepositoryToken, MessageFileService, MessageFileServiceToken } from './Message/message-file.service'
+import config from './Message/config.json'
 
 async function bootstrap() {
   const app = express()
@@ -23,12 +21,22 @@ async function bootstrap() {
   await connection
 
   container.register(RouterToken, { useValue: Router() })
+
   container.register(MessageRepositoryToken, { useValue: getRepository(Message) });
-  container.register(MessageExtRepositoryToken, { useValue: getRepository(MessageExt) })
-  container.register(MessageFileRepositoryToken, { useValue: getRepository(MessageFile) })
-  container.register(MessageStatusHistoryToken, { useValue: getRepository(MessageStatusHistory) })
   container.register(MessageServiceToken, { useClass: MessageService });
+
+  container.register(MessageExtRepositoryToken, { useValue: getRepository(MessageExt) })
+  container.register(MessageExtServiceToken, { useClass: MessageExtService });
+
+  container.register(MessageFileRepositoryToken, { useValue: getRepository(MessageFile) })
+  container.register(MessageFileServiceToken, { useClass: MessageFileService });
+
+  container.register(MessageStatusHistoryRepositoryToken, { useValue: getRepository(MessageStatusHistory) })
+  container.register(MessageStatusHistoryServiceToken, { useClass: MessageStatusHistoryService });
+
   container.register(MessageConfigServiceToken, { useClass: MessageConfigService })
+
+  container.register(`ConfigToken`, { useValue: config })
   const messageController = container.resolve(MessageController)
 
 

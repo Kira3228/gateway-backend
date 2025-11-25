@@ -1,3 +1,5 @@
+
+
 export interface IConfig {
   table_id: string
   default_preset: string
@@ -29,13 +31,4 @@ export interface IDefaultFilters {
 export interface IException {
   field: string
   values: string[]
-}
-
-export interface BaseFilters {
-  presetName?: string
-}
-
-export interface DateRange {
-  startDate?: string
-  endDate?: string
 }
