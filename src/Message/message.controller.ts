@@ -5,6 +5,10 @@ import { FileDto, HistoryDto } from "./dto";
 import { extendedDataValidate, headerValidate, historyValidate, messageFilesValidate, messageValidate } from "./validators";
 import { Validate } from "../decorators/validate";
 import { ExtendedDataRequestParam, HeadersRequestQuery, HistoryRequestParams, HistoryRequestQuery, MessageFilesRequestParam, MessageFilesRequestQuery, MessageRequestQuery } from "./types";
+import { MessageExtService, MessageExtServiceToken } from "./extended-data.service";
+import { MessageStatusHistoryService, MessageStatusHistoryServiceToken } from "./status-history.service";
+import { MessageFileService, MessageFileServiceToken } from "./message-file.service";
+import { MessageConfigService, MessageConfigServiceToken } from "./message-config.service";
 
 export const MessageServiceToken: InjectionToken<MessageService> = "MessageService"
 export const RouterToken: InjectionToken<Router> = "RouterToken"
@@ -13,6 +17,10 @@ export const RouterToken: InjectionToken<Router> = "RouterToken"
 export class MessageController {
   constructor(
     @inject(MessageServiceToken) private readonly messageService: MessageService,
+    @inject(MessageExtServiceToken) private readonly messageExtService: MessageExtService,
+    @inject(MessageStatusHistoryServiceToken) private readonly messageStatusHistoryService: MessageStatusHistoryService,
+    @inject(MessageFileServiceToken) private readonly messageFileService: MessageFileService,
+    @inject(MessageConfigServiceToken) private readonly messageConfigService: MessageConfigService,
     @inject(RouterToken) private readonly router: Router,
   ) {
     this.initializeRoutes()
@@ -25,18 +33,19 @@ export class MessageController {
     this.router.get('/extended/:id', extendedDataValidate, this.getExtendedData.bind(this))
     this.router.get('/files/:id', messageFilesValidate, this.getMessageFiles.bind(this))
     this.router.get('/history/:id', historyValidate, this.getHistory.bind(this))
+    
     this.router.post('/files/create', this.createFiles.bind(this))
     this.router.post('/history/create', this.createStatusHistory.bind(this))
   }
 
   async getPresetNames(_, res: Response) {
-    const presets = await this.messageService.getPresetNames()
+    const presets = await this.messageConfigService.getPresetNames()
     res.status(200).json(presets)
   }
 
   @Validate()
   async getHeaders(req: Request<{}, {}, {}, HeadersRequestQuery>, res: Response) {
-    const headers = await this.messageService.getHeaders(req.query.presetName)
+    const headers = await this.messageConfigService.getHeaders(req.query.presetName)
     res.status(200).json(headers)
   }
 
@@ -48,26 +57,26 @@ export class MessageController {
 
   @Validate()
   async getExtendedData(req: Request<ExtendedDataRequestParam>, res: Response) {
-    const extendeds = await this.messageService.getExtendedDataByMsgId(req.params.id)
+    const extendeds = await this.messageExtService.getExtendedDataByMsgId(req.params.id)
     res.status(200).json(extendeds)
   }
 
   @Validate()
   async getMessageFiles(req: Request<MessageFilesRequestParam, {}, {}, MessageFilesRequestQuery>, res: Response) {
-    const files = await this.messageService.getMessageFilesByQb(req.params.id, req.query)
+    const files = await this.messageFileService.getMessageFilesByQb(req.params.id, req.query)
     res.status(200).json(files)
   }
 
   @Validate()
   async getHistory(req: Request<HistoryRequestParams, {}, {}, HistoryRequestQuery>, res: Response) {
-    const history = await this.messageService.getHistoryByQb(req.params.id, req.query)
+    const history = await this.messageStatusHistoryService.getHistoryByQb(req.params.id, req.query)
     res.status(200).json(history)
   }
 
   async createFiles(req: Request, res: Response) {
     try {
       const dto: FileDto[] = req.body
-      const files = await this.messageService.createFiles(dto)
+      const files = await this.messageFileService.createFiles(dto)
       res.status(200).json(files)
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -76,12 +85,11 @@ export class MessageController {
 
   async createStatusHistory(req: Request, res: Response) {
     const dto: HistoryDto[] = req.body
-    const history = await this.messageService.createStatusHistory(dto)
+    const history = await this.messageStatusHistoryService.createStatusHistory(dto)
     res.status(200).json(history)
   }
 
   getRoutes() {
     return this.router
   }
-
 }
