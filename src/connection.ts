@@ -17,5 +17,5 @@ export const connection = createConnection({
   database: `gateway`,
   entities: [Message, MessageExt, MessageFile, MessageStatusHistory, MetadataTemplate, Point, System, User],
   synchronize: false,
-  logging: true
+  logging: false
 }).then(() => console.log(`Connected to DB`)).catch(error => console.log(error))

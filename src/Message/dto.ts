@@ -1,6 +1,4 @@
 import { MessageStatusEnum } from "../Entities/Enums/MessageStatus.enum"
-import { UserTypeEnum } from "../Entities/Enums/UserType.enum"
-import { MessageStatusHistory } from "../Entities/MessageStatusHistory"
 
 export class FileDto {
   id: number

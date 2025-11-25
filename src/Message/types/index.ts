@@ -1,0 +1,5 @@
+export * from './headerRequest.type'
+export * from './messageRequest.type'
+export * from './messageFilesRequest.type'
+export * from './historyRequest.type'
+export * from './extendedData.type'

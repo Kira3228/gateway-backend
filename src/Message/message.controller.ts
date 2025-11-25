@@ -1,87 +1,67 @@
 import { inject, injectable, InjectionToken } from "tsyringe";
 import { MessageService } from "./message.service";
 import { Request, Response, Router } from "express";
-import { IMessageFilters } from "./message.interface";
-import { BaseController } from "./base.controller";
-import { log } from "console";
 import { FileDto, HistoryDto } from "./dto";
-import { PassThrough } from "stream";
-import { IHistoryFilters } from "./types/IHistoryFilters";
-import { IMessageFilesQueryParams } from "./types/IMessageFilesQueryParams";
+import { extendedDataValidate, headerValidate, historyValidate, messageFilesValidate, messageValidate } from "./validators";
+import { Validate } from "../decorators/validate";
+import { ExtendedDataRequestParam, HeadersRequestQuery, HistoryRequestParams, HistoryRequestQuery, MessageFilesRequestParam, MessageFilesRequestQuery, MessageRequestQuery } from "./types";
 
 export const MessageServiceToken: InjectionToken<MessageService> = "MessageService"
 export const RouterToken: InjectionToken<Router> = "RouterToken"
 
 @injectable()
-export class MessageController extends BaseController {
+export class MessageController {
   constructor(
     @inject(MessageServiceToken) private readonly messageService: MessageService,
     @inject(RouterToken) private readonly router: Router,
   ) {
-    super()
     this.initializeRoutes()
   }
+
   private initializeRoutes(): void {
-    this.router.get(`/all`, this.getAllMessages.bind(this))
+    this.router.get(`/all`, messageValidate, this.getAllMessages.bind(this))
     this.router.get(`/preset/names`, this.getPresetNames.bind(this))
-    this.router.get(`/headers`, this.getHeaders.bind(this))
-    this.router.get('/extended/:id', this.getExtendedData.bind(this))
-    this.router.get('/files/:id', this.getMessageFiles.bind(this))
-    this.router.get('/history/:id', this.getHistory.bind(this))
+    this.router.get(`/headers`, headerValidate, this.getHeaders.bind(this))
+    this.router.get('/extended/:id', extendedDataValidate, this.getExtendedData.bind(this))
+    this.router.get('/files/:id', messageFilesValidate, this.getMessageFiles.bind(this))
+    this.router.get('/history/:id', historyValidate, this.getHistory.bind(this))
     this.router.post('/files/create', this.createFiles.bind(this))
     this.router.post('/history/create', this.createStatusHistory.bind(this))
-
   }
-  async getPresetNames(req: Request, res: Response) {
+
+  async getPresetNames(_, res: Response) {
     const presets = await this.messageService.getPresetNames()
     res.status(200).json(presets)
   }
 
-  async getHeaders(req: Request, res: Response) {
-    const presetName = req.query.presetName as string
-    const headers = await this.messageService.getHeaders(presetName)
+  @Validate()
+  async getHeaders(req: Request<{}, {}, {}, HeadersRequestQuery>, res: Response) {
+    const headers = await this.messageService.getHeaders(req.query.presetName)
     res.status(200).json(headers)
   }
 
-  async getAllMessages(req: Request, res: Response) {
-    const filters: IMessageFilters = this.parsePaginationParams(req.query)
-    const messages = await this.messageService.getMessages(filters)
+  @Validate()
+  async getAllMessages(req: Request<{}, {}, {}, MessageRequestQuery>, res: Response) {
+    const messages = await this.messageService.getMessages(req.query)
     res.status(200).json(messages)
   }
 
-
-  async getExtendedData(req: Request, res: Response) {
-    const msgId = req.params.id
-    const extendeds = await this.messageService.getExtendedDataByMsgId(msgId)
+  @Validate()
+  async getExtendedData(req: Request<ExtendedDataRequestParam>, res: Response) {
+    const extendeds = await this.messageService.getExtendedDataByMsgId(req.params.id)
     res.status(200).json(extendeds)
   }
 
-  async getMessageFiles(req: Request, res: Response) {
-    const messageId = String(req.params.id)
-    const queryParams: IMessageFilesQueryParams = {
-      createdAtOrder: req.query.createdAtOrder as "" | "ASC" | "DESC",
-      fileNameOrder: req.query.fileNameOrder as "" | "ASC" | "DESC",
-      fileSizeBytesOrder: req.query.fileSizeBytesOrder as "" | "ASC" | "DESC",
-      limit: Number(req.query.limit),
-      page: Number(req.query.page)
-    }
-    const files = await this.messageService.getMessageFilesByQb(messageId, queryParams)
+  @Validate()
+  async getMessageFiles(req: Request<MessageFilesRequestParam, {}, {}, MessageFilesRequestQuery>, res: Response) {
+    const files = await this.messageService.getMessageFilesByQb(req.params.id, req.query)
     res.status(200).json(files)
   }
 
-
-  async getHistory(req: Request, res: Response) {
-    const messageId = req.params.id
-    const filters: IHistoryFilters = {
-      oldStatuses: req.query.oldStatuses as string,
-      newStatuses: req.query.newStatuses as string,
-      userTypes: req.query.userTypes as string
-    }
-    const history = await this.messageService.getHistoryByQb({ _messageId: messageId }, filters)
+  @Validate()
+  async getHistory(req: Request<HistoryRequestParams, {}, {}, HistoryRequestQuery>, res: Response) {
+    const history = await this.messageService.getHistoryByQb(req.params.id, req.query)
     res.status(200).json(history)
-
-
-    // return await this.messageService.getHistoryByQb({ _messageId: 1 })
   }
 
   async createFiles(req: Request, res: Response) {

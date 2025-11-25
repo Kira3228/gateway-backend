@@ -16,6 +16,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-validator": "^6.15.0",
+    "joi": "^14.3.1",
     "nodemon": "^3.1.10",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.1.13",
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
+    "@types/joi": "^14.3.1",
     "@types/node": "^8.10.2",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
