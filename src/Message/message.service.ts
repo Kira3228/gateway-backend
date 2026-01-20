@@ -16,7 +16,11 @@ export class MessageService {
     return messages
   }
 
-  async getMessages(query: MessageRequestQuery): Promise<Message[]> {
+  async getMessages(query: MessageRequestQuery): Promise<{
+    messages: Message[],
+    messageCount: number,
+    totalPage: number
+  }> {
     try {
       const qb = this.messageRepo.createQueryBuilder(`msg`).select([
         `msg.id`,
@@ -41,8 +45,12 @@ export class MessageService {
         'msg.sourceSystemId',
         'msg.pointId',
       ]).skip(query.limit * (query.page - 1)).take(query.limit)
-      const messages = qb.getMany()
-      return messages
+      const [messages, messageCount] = await qb.getManyAndCount()
+      return {
+        messages,
+        messageCount,
+        totalPage: Math.ceil((messageCount / query.limit))
+      }
     }
     catch (error) {
       console.error(error);

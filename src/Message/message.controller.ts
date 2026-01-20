@@ -9,6 +9,7 @@ import { MessageExtService, MessageExtServiceToken } from "./extended-data.servi
 import { MessageStatusHistoryService, MessageStatusHistoryServiceToken } from "./status-history.service";
 import { MessageFileService, MessageFileServiceToken } from "./message-file.service";
 import { MessageConfigService, MessageConfigServiceToken } from "./message-config.service";
+import { log } from "console";
 
 export const MessageServiceToken: InjectionToken<MessageService> = "MessageService"
 export const RouterToken: InjectionToken<Router> = "RouterToken"
@@ -33,7 +34,7 @@ export class MessageController {
     this.router.get('/extended/:id', extendedDataValidate, this.getExtendedData.bind(this))
     this.router.get('/files/:id', messageFilesValidate, this.getMessageFiles.bind(this))
     this.router.get('/history/:id', historyValidate, this.getHistory.bind(this))
-    
+
     this.router.post('/files/create', this.createFiles.bind(this))
     this.router.post('/history/create', this.createStatusHistory.bind(this))
   }
@@ -64,6 +65,7 @@ export class MessageController {
   @Validate()
   async getMessageFiles(req: Request<MessageFilesRequestParam, {}, {}, MessageFilesRequestQuery>, res: Response) {
     const files = await this.messageFileService.getMessageFilesByQb(req.params.id, req.query)
+    log(123123)
     res.status(200).json(files)
   }
 

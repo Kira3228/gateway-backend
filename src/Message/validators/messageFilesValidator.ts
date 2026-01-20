@@ -28,4 +28,4 @@ export const messageFilesValidate = [
     .toInt()
     .isInt({ min: 1 })
     .withMessage('limit должно быть числом больше 0'),
-];
+]; 

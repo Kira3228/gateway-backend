@@ -3,6 +3,7 @@ import { MessageFile } from "../Entities";
 import { Repository } from "typeorm";
 import { MessageFilesRequestQuery } from "./types";
 import { FileDto } from "./dto";
+import { log } from "console";
 
 export const MessageFileRepositoryToken: InjectionToken<Repository<MessageFile>> = "MessageFileServiceRepositoryToken"
 export const MessageFileServiceToken: InjectionToken<MessageFileService> = "MessageFileServiceToken"
@@ -26,8 +27,13 @@ export class MessageFileService {
     return files
   }
 
-  async getMessageFilesByQb(_messageId: string, query: MessageFilesRequestQuery): Promise<MessageFile[]> {
+  async getMessageFilesByQb(_messageId: string, query: MessageFilesRequestQuery): Promise<{
+    files: MessageFile[],
+    totalPage: number
+  }> {
     const skip = query.limit * (query.page - 1)
+    log(`skip`, skip)
+    log(query)
     const orderBy: any = {}
     if (query.createdAtOrder) {
       orderBy['files.created_at'] = query.createdAtOrder
@@ -41,12 +47,15 @@ export class MessageFileService {
     const qb = this.messageFileRepo
       .createQueryBuilder(`files`)
       .skip(skip)
-      .take(30)
+      .take(query.limit)
       .where(`files.messageId = :messageId`, { messageId: _messageId })
       .orderBy(orderBy)
+    const [files, filesCount] = await qb.getManyAndCount()
 
-    const result = await qb.getMany()
-    return result
+    return {
+      files,
+      totalPage: Math.ceil(filesCount / query.limit)
+    }
   }
 
   async createFiles(dto: FileDto[]) {

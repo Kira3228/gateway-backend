@@ -4,6 +4,7 @@ import { MessageStatusHistory } from "../Entities";
 import { HistoryDto } from "./dto";
 import { arrayParser } from "../shared/utils/arrayParser";
 import { HistoryRequestQuery } from "./types";
+import { log } from "console";
 
 export const MessageStatusHistoryRepositoryToken: InjectionToken<Repository<MessageStatusHistory>> = "MessageStatusHistoryToken"
 
@@ -16,13 +17,17 @@ export class MessageStatusHistoryService {
 
   ) { }
   async getHistoryByQb(messageId: string, query: HistoryRequestQuery): Promise<
-    MessageStatusHistory[]
+    {
+      history: MessageStatusHistory[]
+      totalPage: number
+    }
   > {
     const order: any = {}
     const newStatuses = arrayParser(query.newStatuses)
     const oldStatuses = arrayParser(query.oldStatuses)
     const userTypes = arrayParser(query.userType)
 
+    log(query)
     const qb = this.messageStatusHistoryRepo.createQueryBuilder(`history`)
       .leftJoinAndSelect(`history.user`, 'user').where(`history.messageId = :id`, { id: messageId })
 
@@ -42,12 +47,16 @@ export class MessageStatusHistoryService {
     }
     const skip = query.limit * (query.page - 1)
 
-    const result = await qb
+    const [history, historyCount] = await qb
       .skip(skip)
       .take(query.limit)
       .orderBy(order)
-      .getMany()
-    return result
+      .getManyAndCount()
+
+    return {
+      history,
+      totalPage: Math.ceil(historyCount / query.limit)
+    }
   }
 
   async createStatusHistory(dto: HistoryDto[]) {
