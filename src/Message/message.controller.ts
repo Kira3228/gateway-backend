@@ -9,7 +9,8 @@ import { MessageExtService, MessageExtServiceToken } from "./extended-data.servi
 import { MessageStatusHistoryService, MessageStatusHistoryServiceToken } from "./status-history.service";
 import { MessageFileService, MessageFileServiceToken } from "./message-file.service";
 import { MessageConfigService, MessageConfigServiceToken } from "./message-config.service";
-import { log } from "console";
+import { groupEnd, log } from "console";
+import { header } from "express-validator";
 
 export const MessageServiceToken: InjectionToken<MessageService> = "MessageService"
 export const RouterToken: InjectionToken<Router> = "RouterToken"
@@ -29,7 +30,9 @@ export class MessageController {
 
   private initializeRoutes(): void {
     this.router.get(`/all`, messageValidate, this.getAllMessages.bind(this))
+    this.router.get(`/preset`, this.getPreset.bind(this))
     this.router.get(`/preset/names`, this.getPresetNames.bind(this))
+
     this.router.get(`/headers`, headerValidate, this.getHeaders.bind(this))
     this.router.get('/extended/:id', extendedDataValidate, this.getExtendedData.bind(this))
     this.router.get('/files/:id', messageFilesValidate, this.getMessageFiles.bind(this))
@@ -42,6 +45,12 @@ export class MessageController {
   async getPresetNames(_, res: Response) {
     const presets = await this.messageConfigService.getPresetNames()
     res.status(200).json(presets)
+  }
+
+  async getPreset(req: Request<{}, {}, {}, { presetName?: string }>, res: Response) {
+    const preset = await this.messageConfigService.getPreset(req.query.presetName)
+    res.status(200).json(preset)
+
   }
 
   @Validate()
@@ -65,7 +74,6 @@ export class MessageController {
   @Validate()
   async getMessageFiles(req: Request<MessageFilesRequestParam, {}, {}, MessageFilesRequestQuery>, res: Response) {
     const files = await this.messageFileService.getMessageFilesByQb(req.params.id, req.query)
-    log(123123)
     res.status(200).json(files)
   }
 

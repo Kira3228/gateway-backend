@@ -8,7 +8,7 @@ export interface IConfig {
 
 export interface PresetConfig {
   presetName: string
-  name: string
+  displayName: string
   headers: IHeader[],
   exceptions: IException[]
   default_filters?: IDefaultFilters

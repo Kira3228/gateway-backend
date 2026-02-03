@@ -2,6 +2,7 @@ import { inject, injectable, InjectionToken } from "tsyringe";
 import { IConfig, IDefaultFilters, IHeader, PresetConfig } from "../shared/utils/types/IConfig";
 
 export const MessageConfigServiceToken: InjectionToken<MessageConfigService> = "MessageConfigServiceToken"
+
 @injectable()
 export class MessageConfigService {
   constructor(@inject(`ConfigToken`) private readonly config: IConfig) { }
@@ -11,9 +12,10 @@ export class MessageConfigService {
       if (!presetName) {
         return this.config.presets?.[0] || null
       }
-      return this.config.presets?.find(
+      const result = this.config.presets?.find(
         (preset: PresetConfig) => preset.presetName === presetName
       ) || null
+      return result
     }
     catch (error) {
       console.error(error);
@@ -30,7 +32,7 @@ export class MessageConfigService {
     }
   }
 
-  getHeaders(presetName?: string): IHeader[] {
+  getHeaders(presetName?: string) {
     try {
       const preset = this.getPreset(presetName)
       return preset?.headers || []
