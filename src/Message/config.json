@@ -55,13 +55,6 @@
           "sortable": true,
           "isVisible": true,
           "width": 80
-        },
-        {
-          "text": "Изменить статус",
-          "value": "changeStatus",
-          "sortable": true,
-          "isVisible": true,
-          "width": 80
         }
       ],
       "exceptions": [
@@ -90,26 +83,25 @@
       "name": "Маленький",
       "headers": [
         {
-          "text": "ID",
-          "value": "id",
+          "text": "ID сообщения",
+          "value": "messageId",
           "sortable": false,
           "isVisible": true,
           "width": 80
         },
         {
-          "text": "Путь",
-          "value": "filePath",
+          "text": "Тип сообщения",
+          "value": "messageType",
           "sortable": true,
           "isVisible": true,
-          "width": 120
+          "width": 80
         },
         {
-          "text": "Статус",
-          "value": "status",
-          "align": "center",
+          "text": "Приоритет",
+          "value": "priority",
           "sortable": true,
           "isVisible": true,
-          "width": 100
+          "width": 80
         }
       ],
       "exceptions": [

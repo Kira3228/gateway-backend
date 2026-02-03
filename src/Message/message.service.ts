@@ -2,6 +2,7 @@ import { inject, injectable, InjectionToken } from "tsyringe";
 import { Repository, } from "typeorm";
 import { Message } from "../Entities";
 import { MessageRequestQuery } from "./types";
+import { MessageConfigService, MessageConfigServiceToken } from "./message-config.service";
 
 export const MessageRepositoryToken: InjectionToken<Repository<Message>> = "MessageRepositoryToken";
 
@@ -9,6 +10,7 @@ export const MessageRepositoryToken: InjectionToken<Repository<Message>> = "Mess
 export class MessageService {
   constructor(
     @inject(MessageRepositoryToken) private readonly messageRepo: Repository<Message>,
+    @inject(MessageConfigServiceToken) private readonly configService: MessageConfigService
   ) { }
 
   async getAllMessages() {
@@ -22,30 +24,22 @@ export class MessageService {
     totalPage: number
   }> {
     try {
-      const qb = this.messageRepo.createQueryBuilder(`msg`).select([
-        `msg.id`,
-        `msg.messageId`,
-        'msg.messageType',
-        'msg.messageCategory',
-        'msg.status',
-        'msg.priority',
-        'msg.metadataParsed',
-        'msg.subject',
-        'msg.securityLabel',
-        'msg.messageNumber',
-        'msg.messageCopies',
-        'msg.numberCopy',
-        'msg.senderName',
-        'msg.createdAt',
-        'msg.updatedAt',
-        'msg.userFromId',
-        'msg.userToId',
-        'msg.userOperatorId',
-        'msg.targetSystemId',
-        'msg.sourceSystemId',
-        'msg.pointId',
-      ]).skip(query.limit * (query.page - 1)).take(query.limit)
+      const fields = this.configService.getHeaders(query.presetName)
+
+      const fieldsForQb = fields.map((field) => `msg.${field.value}`)
+
+      const qb = this.messageRepo
+        .createQueryBuilder(`msg`)
+        .select(fieldsForQb)
+        .skip(query.limit * (query.page - 1))
+        .take(query.limit)
+
       const [messages, messageCount] = await qb.getManyAndCount()
+
+      if (!messages) {
+        throw new Error(`Сообщения не найдены`)
+      }
+
       return {
         messages,
         messageCount,
