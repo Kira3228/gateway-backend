@@ -3,6 +3,7 @@ import { Repository, } from "typeorm";
 import { Message } from "../Entities";
 import { MessageRequestQuery } from "./types";
 import { MessageConfigService, MessageConfigServiceToken } from "./message-config.service";
+import { IHeader } from "../shared/utils/types/IConfig";
 
 export const MessageRepositoryToken: InjectionToken<Repository<Message>> = "MessageRepositoryToken";
 
@@ -21,11 +22,11 @@ export class MessageService {
   async getMessages(query: MessageRequestQuery): Promise<{
     messages: Message[],
     messageCount: number,
-    totalPage: number
+    totalPage: number,
+    fields: IHeader[]
   }> {
     try {
       const fields = this.configService.getHeaders(query.presetName)
-
       const fieldsForQb = fields.map((field) => `msg.${field.value}`)
 
       const qb = this.messageRepo
@@ -43,7 +44,8 @@ export class MessageService {
       return {
         messages,
         messageCount,
-        totalPage: Math.ceil((messageCount / query.limit))
+        totalPage: Math.ceil((messageCount / query.limit)),
+        fields
       }
     }
     catch (error) {

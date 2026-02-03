@@ -11,50 +11,56 @@
           "value": "messageId",
           "sortable": false,
           "isVisible": true,
-          "width": 80
+          "width": 80,
+          "align": "start"
         },
         {
           "text": "Тип сообщения",
           "value": "messageType",
           "sortable": true,
           "isVisible": true,
-          "width": 80
+          "width": 80,
+          "align": "start"
         },
         {
           "text": "Приоритет",
           "value": "priority",
           "sortable": true,
           "isVisible": true,
-          "width": 80
+          "width": 80,
+          "align": "start"
         },
         {
           "text": "Метка безопасности",
           "value": "securityLabel",
           "sortable": true,
           "isVisible": true,
-          "width": 80
+          "width": 80,
+          "align": "start"
         },
         {
           "text": "Номер сообщения",
           "value": "messageNumber",
           "sortable": true,
           "isVisible": true,
-          "width": 80
+          "width": 80,
+          "align": "start"
         },
         {
           "text": "Объект",
           "value": "subject",
           "sortable": true,
           "isVisible": true,
-          "width": 80
+          "width": 80,
+          "align": "start"
         },
         {
           "text": "Статус",
           "value": "status",
-          "align": "center",
           "sortable": true,
           "isVisible": true,
-          "width": 80
+          "width": 80,
+          "align": "start"
         }
       ],
       "exceptions": [
