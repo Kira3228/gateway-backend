@@ -54,14 +54,27 @@ export class MessageConfigService {
     }
   }
 
-  getFieldExceptions(presetName: string, field: string): string[] {
-    try {
-      const preset = this.getPreset(presetName)
-      return preset?.exceptions?.[field] || []
+  // getFieldExceptions(presetName: string, field: string): string[] {
+  //   try {
+  //     const preset = this.getPreset(presetName)
+  //     return preset?.exceptions?.[field] || []
+  //   }
+  //   catch (error) {
+  //     console.error(error);
+  //     return []
+  //   }
+  // }
+
+  createPreset(presetName: string, config: PresetConfig) {
+    const existingPreset = this.config
+      .presets.find((preset) => { return preset.presetName === presetName })
+
+    if (existingPreset) {
+      throw new Error(`Пресет с этим именем уже существует`)
     }
-    catch (error) {
-      console.error(error);
-      return []
-    }
+
+    this.config.presets = [...this.config.presets, config]
+
+    return { success: true }
   }
 }

@@ -32,7 +32,6 @@ export class MessageController {
     this.router.get(`/all`, messageValidate, this.getAllMessages.bind(this))
     this.router.get(`/preset`, this.getPreset.bind(this))
     this.router.get(`/preset/names`, this.getPresetNames.bind(this))
-
     this.router.get(`/headers`, headerValidate, this.getHeaders.bind(this))
     this.router.get('/extended/:id', extendedDataValidate, this.getExtendedData.bind(this))
     this.router.get('/files/:id', messageFilesValidate, this.getMessageFiles.bind(this))

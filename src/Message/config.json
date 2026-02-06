@@ -7,60 +7,172 @@
       "displayName": "Стандартный вид",
       "headers": [
         {
-          "text": "ID сообщения",
-          "value": "messageId",
+          "value": "id",
+          "align": "center",
+          "isVisible": false,
           "sortable": false,
-          "isVisible": true,
-          "width": 80,
-          "align": "start"
+          "text": "Id",
+          "width": 100
         },
         {
-          "text": "Тип сообщения",
+          "value": "messageId",
+          "align": "center",
+          "isVisible": false,
+          "sortable": false,
+          "text": "Id Сообщения",
+          "width": 100
+        },
+        {
           "value": "messageType",
-          "sortable": true,
+          "align": "center",
           "isVisible": true,
-          "width": 80,
-          "align": "start"
+          "sortable": true,
+          "text": "Тип сообщения",
+          "width": 100
         },
         {
-          "text": "Приоритет",
-          "value": "priority",
-          "sortable": true,
+          "value": "messageCategory",
+          "align": "center",
           "isVisible": true,
-          "width": 80,
-          "align": "start"
+          "sortable": true,
+          "text": "Категория сообщения",
+          "width": 100
         },
         {
-          "text": "Метка безопасности",
-          "value": "securityLabel",
-          "sortable": true,
-          "isVisible": true,
-          "width": 80,
-          "align": "start"
-        },
-        {
-          "text": "Номер сообщения",
-          "value": "messageNumber",
-          "sortable": true,
-          "isVisible": true,
-          "width": 80,
-          "align": "start"
-        },
-        {
-          "text": "Объект",
-          "value": "subject",
-          "sortable": true,
-          "isVisible": true,
-          "width": 80,
-          "align": "start"
-        },
-        {
-          "text": "Статус",
           "value": "status",
-          "sortable": true,
+          "align": "center",
           "isVisible": true,
-          "width": 80,
-          "align": "start"
+          "sortable": true,
+          "text": "Статус",
+          "width": 100
+        },
+        {
+          "value": "priority",
+          "align": "center",
+          "isVisible": true,
+          "sortable": true,
+          "text": "Приоритет",
+          "width": 100
+        },
+        {
+          "value": "metadataParsed",
+          "align": "center",
+          "isVisible": false,
+          "sortable": true,
+          "text": "Метаданные",
+          "width": 100
+        },
+        {
+          "value": "subject",
+          "align": "center",
+          "isVisible": false,
+          "sortable": true,
+          "text": "Субъект",
+          "width": 100
+        },
+        {
+          "value": "securityLabel",
+          "align": "center",
+          "isVisible": true,
+          "sortable": true,
+          "text": "Метка безопасности",
+          "width": 100
+        },
+        {
+          "value": "messageNumber",
+          "align": "center",
+          "isVisible": true,
+          "sortable": true,
+          "text": "Номер сообщения",
+          "width": 100
+        },
+        {
+          "value": "messageCopies",
+          "align": "center",
+          "isVisible": true,
+          "sortable": true,
+          "text": "Копии сообщения",
+          "width": 100
+        },
+        {
+          "value": "numberCopy",
+          "align": "center",
+          "isVisible": true,
+          "sortable": true,
+          "text": "Число копирований",
+          "width": 100
+        },
+        {
+          "value": "senderName",
+          "align": "center",
+          "isVisible": true,
+          "sortable": true,
+          "text": "Имя отправителья",
+          "width": 100
+        },
+        {
+          "value": "createdAt",
+          "align": "center",
+          "isVisible": true,
+          "sortable": true,
+          "text": "Создано",
+          "width": 100
+        },
+        {
+          "value": "updatedAt",
+          "align": "center",
+          "isVisible": true,
+          "sortable": true,
+          "text": "Обновлено",
+          "width": 100
+        },
+        {
+          "value": "userFromId",
+          "align": "center",
+          "isVisible": true,
+          "sortable": true,
+          "text": "Id отправителя",
+          "width": 100
+        },
+        {
+          "value": "userToId",
+          "align": "center",
+          "isVisible": true,
+          "sortable": true,
+          "text": "Id получателя",
+          "width": 100
+        },
+        {
+          "value": "userOperatorId",
+          "align": "center",
+          "isVisible": false,
+          "sortable": true,
+          "text": "Id оператора",
+          "width": 100
+        },
+        {
+          "value": "targetSystemId",
+          "align": "center",
+          "isVisible": false,
+          "sortable": true,
+          "text": "Id целевой системы",
+          "width": 100
+        },
+        {
+          "value": "sourceSystemId",
+          "align": "center",
+          "isVisible": false,
+          "sortable": true,
+          "text": "Id источника",
+          "width": 100
+        },
+        {
+          "value": "pointId",
+          "align": "center",
+          "isVisible": false,
+          "sortable": false,
+          "text": "Id точки",
+          "width": 100
         }
       ],
       "exceptions": [
@@ -89,25 +201,172 @@
       "name": "Маленький",
       "headers": [
         {
-          "text": "ID сообщения",
-          "value": "messageId",
+          "value": "id",
+          "align": "center",
+          "isVisible": false,
           "sortable": false,
-          "isVisible": true,
-          "width": 80
+          "text": "Id",
+          "width": 100
         },
         {
-          "text": "Тип сообщения",
+          "value": "messageId",
+          "align": "center",
+          "isVisible": false,
+          "sortable": false,
+          "text": "Id Сообщения",
+          "width": 100
+        },
+        {
           "value": "messageType",
-          "sortable": true,
+          "align": "center",
           "isVisible": true,
-          "width": 80
+          "sortable": true,
+          "text": "Тип сообщения",
+          "width": 100
         },
         {
-          "text": "Приоритет",
-          "value": "priority",
-          "sortable": true,
+          "value": "messageCategory",
+          "align": "center",
           "isVisible": true,
-          "width": 80
+          "sortable": true,
+          "text": "Категория сообщения",
+          "width": 100
+        },
+        {
+          "value": "status",
+          "align": "center",
+          "isVisible": true,
+          "sortable": true,
+          "text": "Статус",
+          "width": 100
+        },
+        {
+          "value": "priority",
+          "align": "center",
+          "isVisible": true,
+          "sortable": true,
+          "text": "Приоритет",
+          "width": 100
+        },
+        {
+          "value": "metadataParsed",
+          "align": "center",
+          "isVisible": false,
+          "sortable": true,
+          "text": "Метаданные",
+          "width": 100
+        },
+        {
+          "value": "subject",
+          "align": "center",
+          "isVisible": false,
+          "sortable": true,
+          "text": "Субъект",
+          "width": 100
+        },
+        {
+          "value": "securityLabel",
+          "align": "center",
+          "isVisible": true,
+          "sortable": true,
+          "text": "Метка безопасности",
+          "width": 100
+        },
+        {
+          "value": "messageNumber",
+          "align": "center",
+          "isVisible": true,
+          "sortable": true,
+          "text": "Номер сообщения",
+          "width": 100
+        },
+        {
+          "value": "messageCopies",
+          "align": "center",
+          "isVisible": true,
+          "sortable": true,
+          "text": "Копии сообщения",
+          "width": 100
+        },
+        {
+          "value": "numberCopy",
+          "align": "center",
+          "isVisible": true,
+          "sortable": true,
+          "text": "Число копирований",
+          "width": 100
+        },
+        {
+          "value": "senderName",
+          "align": "center",
+          "isVisible": true,
+          "sortable": true,
+          "text": "Имя отправителья",
+          "width": 100
+        },
+        {
+          "value": "createdAt",
+          "align": "center",
+          "isVisible": true,
+          "sortable": true,
+          "text": "Создано",
+          "width": 100
+        },
+        {
+          "value": "updatedAt",
+          "align": "center",
+          "isVisible": true,
+          "sortable": true,
+          "text": "Обновлено",
+          "width": 100
+        },
+        {
+          "value": "userFromId",
+          "align": "center",
+          "isVisible": true,
+          "sortable": true,
+          "text": "Id отправителя",
+          "width": 100
+        },
+        {
+          "value": "userToId",
+          "align": "center",
+          "isVisible": true,
+          "sortable": true,
+          "text": "Id получателя",
+          "width": 100
+        },
+        {
+          "value": "userOperatorId",
+          "align": "center",
+          "isVisible": false,
+          "sortable": true,
+          "text": "Id оператора",
+          "width": 100
+        },
+        {
+          "value": "targetSystemId",
+          "align": "center",
+          "isVisible": false,
+          "sortable": true,
+          "text": "Id целевой системы",
+          "width": 100
+        },
+        {
+          "value": "sourceSystemId",
+          "align": "center",
+          "isVisible": false,
+          "sortable": true,
+          "text": "Id источника",
+          "width": 100
+        },
+        {
+          "value": "pointId",
+          "align": "center",
+          "isVisible": false,
+          "sortable": false,
+          "text": "Id точки",
+          "width": 100
         }
       ],
       "exceptions": [

@@ -1,5 +1,3 @@
-
-
 export interface IConfig {
   table_id: string
   default_preset: string
@@ -8,9 +6,7 @@ export interface IConfig {
 
 export interface PresetConfig {
   presetName: string
-  displayName: string
   headers: IHeader[],
-  exceptions: IException[]
   default_filters?: IDefaultFilters
 }
 
