@@ -4,7 +4,6 @@ import { MessageStatusHistory } from "../Entities";
 import { HistoryDto } from "./dto";
 import { arrayParser } from "../shared/utils/arrayParser";
 import { HistoryRequestQuery } from "./types";
-import { log } from "console";
 
 export const MessageStatusHistoryRepositoryToken: InjectionToken<Repository<MessageStatusHistory>> = "MessageStatusHistoryToken"
 
@@ -27,7 +26,6 @@ export class MessageStatusHistoryService {
     const oldStatuses = arrayParser(query.oldStatuses)
     const userTypes = arrayParser(query.userType)
 
-    log(query)
     const qb = this.messageStatusHistoryRepo.createQueryBuilder(`history`)
       .leftJoinAndSelect(`history.user`, 'user').where(`history.messageId = :id`, { id: messageId })
 

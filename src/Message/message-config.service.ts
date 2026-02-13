@@ -1,8 +1,13 @@
 import { inject, injectable, InjectionToken } from "tsyringe";
 import { IConfig, IDefaultFilters, IHeader, PresetConfig } from "../shared/utils/types/IConfig";
+import * as fs from 'fs';
+import { promisify } from 'util';
+import { join } from "path"
+
 
 export const MessageConfigServiceToken: InjectionToken<MessageConfigService> = "MessageConfigServiceToken"
 
+const path = join(__dirname, "..", '..', "config.json")
 @injectable()
 export class MessageConfigService {
   constructor(@inject(`ConfigToken`) private readonly config: IConfig) { }
@@ -15,6 +20,7 @@ export class MessageConfigService {
       const result = this.config.presets?.find(
         (preset: PresetConfig) => preset.presetName === presetName
       ) || null
+
       return result
     }
     catch (error) {
@@ -54,27 +60,43 @@ export class MessageConfigService {
     }
   }
 
-  // getFieldExceptions(presetName: string, field: string): string[] {
-  //   try {
-  //     const preset = this.getPreset(presetName)
-  //     return preset?.exceptions?.[field] || []
-  //   }
-  //   catch (error) {
-  //     console.error(error);
-  //     return []
-  //   }
-  // }
-
-  createPreset(presetName: string, config: PresetConfig) {
+  async createPreset(body: PresetConfig) {
     const existingPreset = this.config
-      .presets.find((preset) => { return preset.presetName === presetName })
+      .presets.find((preset) => { return preset.presetName === body.presetName })
 
     if (existingPreset) {
       throw new Error(`Пресет с этим именем уже существует`)
     }
 
-    this.config.presets = [...this.config.presets, config]
+    this.config.presets = [...this.config.presets, body];
+    const cfgToSave = {
+      ...this.config,
+      presets: this.config.presets
+    };
+    try {
+      const writeFileAsync = promisify(fs.writeFile);
+      await writeFileAsync(path, JSON.stringify(cfgToSave));
+    } catch (error) {
+      this.config.presets = this.config.presets.filter(p => p.presetName !== body.presetName);
+      throw new Error(`Не удалось сохранить пресет: ${error.message}`);
+    }
+    return this.config.presets.map((preset) => preset.presetName)
+  }
 
-    return { success: true }
+
+  async deletePreset(presetName: string) {
+    const newPresets = this.config.presets.filter((preset) => preset.presetName !== presetName);
+
+    const cfg = {
+      "default_preset": "standart",
+      "presets": newPresets
+    };
+
+    const writeFileAsync = promisify(fs.writeFile);
+    await writeFileAsync(path, JSON.stringify(cfg, null, 2)); // null, 2 для красивого форматирования
+
+    this.config.presets = newPresets;
+
+    return newPresets.map((preset) => preset.presetName);
   }
 }

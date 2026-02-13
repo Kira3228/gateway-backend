@@ -3,7 +3,6 @@ import { MessageFile } from "../Entities";
 import { Repository } from "typeorm";
 import { MessageFilesRequestQuery } from "./types";
 import { FileDto } from "./dto";
-import { log } from "console";
 
 export const MessageFileRepositoryToken: InjectionToken<Repository<MessageFile>> = "MessageFileServiceRepositoryToken"
 export const MessageFileServiceToken: InjectionToken<MessageFileService> = "MessageFileServiceToken"
@@ -32,8 +31,6 @@ export class MessageFileService {
     totalPage: number
   }> {
     const skip = query.limit * (query.page - 1)
-    log(`skip`, skip)
-    log(query)
     const orderBy: any = {}
     if (query.createdAtOrder) {
       orderBy['files.created_at'] = query.createdAtOrder

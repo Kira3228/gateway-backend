@@ -10,7 +10,8 @@ import { MessageController, MessageServiceToken, RouterToken } from './Message/m
 import { MessageExtRepositoryToken, MessageExtService, MessageExtServiceToken } from './Message/extended-data.service'
 import { MessageStatusHistoryRepositoryToken, MessageStatusHistoryService, MessageStatusHistoryServiceToken, } from './Message/status-history.service'
 import { MessageFileRepositoryToken, MessageFileService, MessageFileServiceToken } from './Message/message-file.service'
-import config from './Message/config.json'
+
+import config from '../config.json'
 
 async function bootstrap() {
   const app = express()

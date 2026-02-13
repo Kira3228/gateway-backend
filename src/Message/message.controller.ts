@@ -9,8 +9,8 @@ import { MessageExtService, MessageExtServiceToken } from "./extended-data.servi
 import { MessageStatusHistoryService, MessageStatusHistoryServiceToken } from "./status-history.service";
 import { MessageFileService, MessageFileServiceToken } from "./message-file.service";
 import { MessageConfigService, MessageConfigServiceToken } from "./message-config.service";
-import { groupEnd, log } from "console";
 import { header } from "express-validator";
+import { PresetConfig } from "../shared/utils/types/IConfig";
 
 export const MessageServiceToken: InjectionToken<MessageService> = "MessageService"
 export const RouterToken: InjectionToken<Router> = "RouterToken"
@@ -37,8 +37,11 @@ export class MessageController {
     this.router.get('/files/:id', messageFilesValidate, this.getMessageFiles.bind(this))
     this.router.get('/history/:id', historyValidate, this.getHistory.bind(this))
 
+    this.router.post('/preset/create', this.createPreset.bind(this))
     this.router.post('/files/create', this.createFiles.bind(this))
     this.router.post('/history/create', this.createStatusHistory.bind(this))
+
+    this.router.delete('/preset/delete', this.deletePreset.bind(this))
   }
 
   async getPresetNames(_, res: Response) {
@@ -49,7 +52,17 @@ export class MessageController {
   async getPreset(req: Request<{}, {}, {}, { presetName?: string }>, res: Response) {
     const preset = await this.messageConfigService.getPreset(req.query.presetName)
     res.status(200).json(preset)
+  }
 
+  async createPreset(req: Request<any, any, PresetConfig>, res: Response) {
+    const preset = await this.messageConfigService.createPreset(req.body)
+    res.status(200).json(preset)
+  }
+
+  async deletePreset(req: Request<any, any, any>, res: Response) {
+    const preset = await this.messageConfigService.deletePreset(req.body.presetName)
+
+    res.status(200).json(preset)
   }
 
   @Validate()
