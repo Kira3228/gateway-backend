@@ -9,7 +9,6 @@ import { MessageExtService, MessageExtServiceToken } from "./extended-data.servi
 import { MessageStatusHistoryService, MessageStatusHistoryServiceToken } from "./status-history.service";
 import { MessageFileService, MessageFileServiceToken } from "./message-file.service";
 import { MessageConfigService, MessageConfigServiceToken } from "./message-config.service";
-import { header } from "express-validator";
 import { PresetConfig } from "../shared/utils/types/IConfig";
 
 export const MessageServiceToken: InjectionToken<MessageService> = "MessageService"
@@ -42,6 +41,7 @@ export class MessageController {
     this.router.post('/history/create', this.createStatusHistory.bind(this))
 
     this.router.delete('/preset/delete', this.deletePreset.bind(this))
+    this.router.patch('/preset/update', this.updatePreset.bind(this))
   }
 
   async getPresetNames(_, res: Response) {
@@ -59,9 +59,13 @@ export class MessageController {
     res.status(200).json(preset)
   }
 
-  async deletePreset(req: Request<any, any, any>, res: Response) {
+  async deletePreset(req: Request<any, any, { presetName: string }>, res: Response) {
     const preset = await this.messageConfigService.deletePreset(req.body.presetName)
+    res.status(200).json(preset)
+  }
 
+  async updatePreset(req: Request<any, any, PresetConfig>, res: Response) {
+    const preset = await this.messageConfigService.updatePreset(req.body)
     res.status(200).json(preset)
   }
 
@@ -94,7 +98,7 @@ export class MessageController {
     const history = await this.messageStatusHistoryService.getHistoryByQb(req.params.id, req.query)
     res.status(200).json(history)
   }
-
+ 
   async createFiles(req: Request, res: Response) {
     try {
       const dto: FileDto[] = req.body
