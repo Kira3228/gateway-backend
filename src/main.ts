@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import express, { Router } from 'express'
 import cors from 'cors'
 import { connection } from './connection'
@@ -12,6 +13,8 @@ import { MessageStatusHistoryRepositoryToken, MessageStatusHistoryService, Messa
 import { MessageFileRepositoryToken, MessageFileService, MessageFileServiceToken } from './Message/message-file.service'
 
 import config from '../config.json'
+
+import { Controller, Delete, Get, Patch, Post, PREFIX_META, ROUTE_META, RouteInfo, VALIDATOR_META, } from './decorators'
 
 async function bootstrap() {
   const app = express()
@@ -38,10 +41,25 @@ async function bootstrap() {
   container.register(MessageConfigServiceToken, { useClass: MessageConfigService })
 
   container.register(`ConfigToken`, { useValue: config })
-  const messageController = container.resolve(MessageController)
 
+  // const messageController = container.resolve(MessageController)
 
-  app.use(`/messages`, messageController.getRoutes())
+  const controllers = [MessageController]
+
+  for (const ControllerClass of controllers) {
+    const prefix = Reflect.getMetadata(PREFIX_META, ControllerClass) || '';
+    const instance = container.resolve(ControllerClass);
+    const routes: RouteInfo[] = Reflect.getMetadata(ROUTE_META, ControllerClass) || [];
+
+    const router = Router();
+    for (const route of routes) {
+      const handler = (instance as any)[route.handler].bind(instance);
+      // ✅ НИЧЕГО НЕ ДОБАВЛЯЙ - @UseValidators внутри handler!
+      (router as any)[route.method](route.path, handler);
+    }
+    app.use(prefix, router);
+  }
+  // app.use(`/messages`, messageController.getRoutes())
 
 
   app.listen(PORT, () => {

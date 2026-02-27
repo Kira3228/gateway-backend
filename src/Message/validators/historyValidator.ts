@@ -1,6 +1,6 @@
 import { check } from "express-validator";
 
-export const historyValidate= [
+export const historyValidate = [
   check(`id`)
     .isUUID()
     .withMessage(`id должен быть uuid`),

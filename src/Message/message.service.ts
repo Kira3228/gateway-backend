@@ -1,10 +1,10 @@
-import { autoInjectable, inject, injectable, InjectionToken } from "tsyringe";
+import { inject, injectable, InjectionToken } from "tsyringe";
 import { Repository, } from "typeorm";
 import { Message } from "../Entities";
 import { MessageRequestQuery } from "./types";
 import { MessageConfigService, MessageConfigServiceToken } from "./message-config.service";
 import { IHeader } from "../shared/utils/types/IConfig";
-import { log } from "console";
+import { arrayParser } from "../shared/utils/arrayParser";
 
 export const MessageRepositoryToken: InjectionToken<Repository<Message>> = "MessageRepositoryToken";
 
@@ -32,7 +32,7 @@ export class MessageService {
         .take(query.limit)
 
       if (query.categories) {
-        qb.andWhere(`msg.messageCategory IN (:...categories)`, { categories: query.categories })
+        qb.andWhere(`msg.messageCategory IN (:...categories)`, { categories: arrayParser(query.categories) })
       }
 
       if (query.metadata) {
@@ -77,13 +77,13 @@ export class MessageService {
 
       if (query.statuses) {
         qb.andWhere(`msg.status IN (:...statuses)`, {
-          statuses: query.statuses
+          statuses: arrayParser(query.statuses)
         })
       }
 
       if (query.securityLabels) {
         qb.andWhere(`msg.securityLabel IN (:...securityLabels)`, {
-          securityLabels: query.securityLabels
+          securityLabels: arrayParser(query.securityLabels)
         })
       }
 
@@ -113,7 +113,7 @@ export class MessageService {
 
       if (query.messageTypes) {
         qb.andWhere(`msg.messageType IN (:...messageTypes)`, {
-          messageTypes: query.messageTypes
+          messageTypes: arrayParser(query.messageTypes)
         })
       }
       const [messages, messageCount] = await qb.getManyAndCount()
