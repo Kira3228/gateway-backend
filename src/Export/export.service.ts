@@ -14,7 +14,6 @@ export const ExportServiceServiceToken: InjectionToken<ExportService> = "ExportS
 export class ExportService {
   constructor(
     @inject(MessageServiceToken) private readonly messageService: MessageService,
-    @inject(MessageRepositoryToken) private readonly messageRepo: Repository<Message>,
     @inject(MessageConfigServiceToken) private readonly configService: MessageConfigService,
   ) { }
 
@@ -69,7 +68,6 @@ export class ExportService {
       res.on('close', async () => {
         await release();
       });
-
     } catch (error) {
       await release();
       throw error;
@@ -77,7 +75,6 @@ export class ExportService {
   }
 
   async getCsvReport(res: Response, params: MessageExportDto): Promise<void> {
-
     const { fieldsWithAliases, activeFields } = await this.getFormattedFields(params.presetName, params.invisibleFieldsIsAvailable)
 
     const { dbStream, release } = await this.messageService.getMessageStream(fieldsWithAliases, { ...params });
