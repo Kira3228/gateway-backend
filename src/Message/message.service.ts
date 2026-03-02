@@ -43,91 +43,6 @@ export class MessageService {
         messageTypes: query.messageTypes
       })
 
-      if (query.categories) {
-        qb.andWhere(`msg.messageCategory IN (:...categories)`, { categories: arrayParser(query.categories) })
-      }
-
-      if (query.metadata) {
-        qb.andWhere(`msg.metadataParsed = :metadata`, { metadata: query.metadata })
-      }
-
-      if (query.createDateRange) {
-        const [startDateRaw, endDateRaw] = query.createDateRange
-
-        const startDate = startDateRaw === '' ? null : startDateRaw
-        const endDate = endDateRaw === '' ? null : endDateRaw
-
-        if (startDate !== null || endDate !== null) {
-          qb.andWhere(
-            `(msg.createdAt >= COALESCE(:startDate, \'1970-01-01\') 
-              AND msg.createdAt <= COALESCE(:endDate, NOW()))`,
-            {
-              startDate,
-              endDate
-            }
-          )
-        }
-      }
-
-      if (query.updateDateRange) {
-        const [startDateRaw, endDateRaw] = query.updateDateRange
-
-        const startDate = startDateRaw === '' ? null : startDateRaw
-        const endDate = endDateRaw === '' ? null : endDateRaw
-
-        if (startDate !== null || endDate !== null) {
-          qb.andWhere(
-            `(msg.updatedAt >= COALESCE(:startDate, \'1970-01-01\') 
-              AND msg.updatedAt <= COALESCE(:endDate, NOW()))`,
-            {
-              startDate,
-              endDate
-            }
-          )
-        }
-      }
-
-      if (query.statuses) {
-        qb.andWhere(`msg.status IN (:...statuses)`, {
-          statuses: arrayParser(query.statuses)
-        })
-      }
-
-      if (query.securityLabels) {
-        qb.andWhere(`msg.securityLabel IN (:...securityLabels)`, {
-          securityLabels: arrayParser(query.securityLabels)
-        })
-      }
-
-      if (query.priority) {
-        const [minPriorityRaw, maxPriorityRaw] = query.priority
-
-        const minPriority = Number(minPriorityRaw)
-        const maxPriority = Number(maxPriorityRaw)
-
-        if (!isNaN(minPriority) || !isNaN(maxPriority)) {
-          const conditions = []
-          const params: any = {}
-
-          if (!isNaN(minPriority)) {
-            conditions.push(`msg.priority >= :minPriority`)
-            params.minPriority = minPriority
-          }
-
-          if (!isNaN(maxPriority)) {
-            conditions.push(`msg.priority <= :maxPriority`)
-            params.maxPriority = maxPriority
-          }
-
-          qb.andWhere(`(${conditions.join(' AND ')})`, params)
-        }
-      }
-
-      if (query.messageTypes) {
-        qb.andWhere(`msg.messageType IN (:...messageTypes)`, {
-          messageTypes: arrayParser(query.messageTypes)
-        })
-      }
 
       const [messages, messageCount] = await qb.getManyAndCount()
 
@@ -147,21 +62,37 @@ export class MessageService {
     }
   }
 
-  async getMessageStream(presetName: string, invisibleFieldsIsAvailable: "true" | "false") {
+  async getMessageStream(fields: string[], params: {
+    priority?: [number, number]
+    metadata?: boolean
+    createDateRange?: [string, string]
+    updateDateRange?: [string, string]
+    categories?: string
+    messageTypes?: string
+    statuses?: string
+    securityLabels?: string
+  }) {
     const queryRunner = this.messageRepo.manager.connection.createQueryRunner();
+    await queryRunner.connect();
 
-    const fields = await this.configService.getHeaders(presetName);
-    const activeFields = invisibleFieldsIsAvailable === "false"
-      ? fields.filter(f => f.isVisible)
-      : fields;
-
-    const csvHeaders = activeFields.map(f => f.value);
-    const fieldsWithAliases = activeFields.map(f => `msg.${f.value} AS "${f.value}"`);
+    let isReleased = false;
+    const release = async () => {
+      if (!isReleased) {
+        await queryRunner.release();
+        isReleased = true;
+      }
+    };
 
     const dbStream = await queryRunner.manager
       .createQueryBuilder(Message, 'msg')
-      .select(fieldsWithAliases)
-    // .stream();
+      .select(fields)
+
+    this.applyMessageParams(dbStream, params)
+
+    return {
+      dbStream: await dbStream.stream(),
+      release
+    }
   }
 
   private async applyMessageParams<T>(qb: SelectQueryBuilder<T>,
