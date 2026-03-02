@@ -10,46 +10,21 @@ import { MessageExportDto } from "./dto/message-export.dto";
 
 export const ExportServiceServiceToken: InjectionToken<ExportService> = "ExportServiceServiceToken"
 
-
 @injectable()
 export class ExportService {
   constructor(
     @inject(MessageServiceToken) private readonly messageService: MessageService,
-    @inject(MessageRepositoryToken) private readonly messageRepo: Repository<Message>,
     @inject(MessageConfigServiceToken) private readonly configService: MessageConfigService,
   ) { }
 
   async getJsonReport(res: Response, params: MessageExportDto): Promise<void> {
-    const queryRunner = this.messageRepo.manager.connection.createQueryRunner();
-    await queryRunner.connect();
-
-    let isReleased = false;
-    const release = async () => {
-      if (!isReleased) {
-        await queryRunner.release();
-        isReleased = true;
-      }
-    };
+    const { fieldKeys, fieldsWithAliases } = await this.getFormattedFields(params.presetName, params.invisibleFieldsIsAvailable)
+    const { dbStream, release } = await this.messageService.getMessageStream(fieldsWithAliases, { ...params });
 
     try {
-      const fields = await this.configService.getHeaders(params.presetName);
-      const activeFields = params.invisibleFieldsIsAvailable === "false"
-        ? fields.filter(f => f.isVisible)
-        : fields;
-
-      const fieldKeys = activeFields.map(f => f.value);
-      const fieldsWithAliases = activeFields.map(f => `msg.${f.value} AS "${f.value}"`);
-
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
       res.setHeader('Content-Disposition', 'attachment; filename="report.json"');
-
       res.write('[');
-
-      const qb = await queryRunner.manager
-        .createQueryBuilder(Message, 'msg')
-        .select(fieldsWithAliases)
-
-      const dbStream = await qb.stream()
 
       let isFirstRow = true;
 
@@ -86,7 +61,6 @@ export class ExportService {
       });
 
       dbStream.on('error', async (err) => {
-        console.error('DB Stream Error:', err);
         if (!res.headersSent) res.status(500).send('Error');
         await release();
       });
@@ -94,7 +68,6 @@ export class ExportService {
       res.on('close', async () => {
         await release();
       });
-
     } catch (error) {
       await release();
       throw error;
@@ -102,26 +75,12 @@ export class ExportService {
   }
 
   async getCsvReport(res: Response, params: MessageExportDto): Promise<void> {
-    const queryRunner = this.messageRepo.manager.connection.createQueryRunner();
-    await queryRunner.connect();
+    const { fieldsWithAliases, activeFields } = await this.getFormattedFields(params.presetName, params.invisibleFieldsIsAvailable)
 
-    let isReleased = false;
-    const release = async () => {
-      if (!isReleased) {
-        await queryRunner.release();
-        isReleased = true;
-      }
-    };
+    const { dbStream, release } = await this.messageService.getMessageStream(fieldsWithAliases, { ...params });
 
     try {
-      const fields = await this.configService.getHeaders(params.presetName);
-
-      const activeFields = params.invisibleFieldsIsAvailable === "false"
-        ? fields.filter(f => f.isVisible)
-        : fields;
-
       const csvHeaders = activeFields.map(f => f.value);
-      const fieldsWithAliases = activeFields.map(f => `msg.${f.value} AS "${f.value}"`);
 
       res.setHeader('Content-Type', 'text/csv; charset=utf-8');
       res.setHeader('Content-Disposition', 'attachment; filename="report.csv"');
@@ -134,11 +93,6 @@ export class ExportService {
       });
 
       csvStream.pipe(res);
-
-      const dbStream = await queryRunner.manager
-        .createQueryBuilder(Message, 'msg')
-        .select(fieldsWithAliases)
-        .stream();
 
       dbStream.on('data', (data) => {
         const cleanRow = {};
@@ -160,7 +114,6 @@ export class ExportService {
       });
 
       dbStream.on('error', async (err) => {
-        console.error('DB Stream Error:', err);
         csvStream.destroy();
         await release();
       });
@@ -176,6 +129,22 @@ export class ExportService {
     } catch (error) {
       await release();
       throw error;
+    }
+  }
+
+  private async getFormattedFields(presetName: string, invisibleFieldsIsAvailable: string) {
+    const fields = await this.configService.getHeaders(presetName);
+    const activeFields = invisibleFieldsIsAvailable === "false"
+      ? fields.filter(f => f.isVisible)
+      : fields;
+
+    const fieldKeys = activeFields.map(f => f.value);
+    const fieldsWithAliases = activeFields.map(f => `msg.${f.value} AS "${f.value}"`);
+
+    return {
+      fieldKeys,
+      fieldsWithAliases,
+      activeFields
     }
   }
 }
