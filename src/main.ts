@@ -15,6 +15,8 @@ import { MessageFileRepositoryToken, MessageFileService, MessageFileServiceToken
 import config from '../config.json'
 
 import { Controller, Delete, Get, Patch, Post, PREFIX_META, ROUTE_META, RouteInfo, VALIDATOR_META, } from './decorators'
+import { ReportController } from './Export/report.controller';
+import { ExportService, ExportServiceServiceToken } from './Export/export.service';
 
 async function bootstrap() {
   const app = express()
@@ -40,11 +42,13 @@ async function bootstrap() {
 
   container.register(MessageConfigServiceToken, { useClass: MessageConfigService })
 
+  container.register(ExportServiceServiceToken, { useClass: ExportService })
+
   container.register(`ConfigToken`, { useValue: config })
 
   // const messageController = container.resolve(MessageController)
 
-  const controllers = [MessageController]
+  const controllers: { new(...args: any[]): any }[] = [MessageController, ReportController]
 
   for (const ControllerClass of controllers) {
     const prefix = Reflect.getMetadata(PREFIX_META, ControllerClass) || '';
@@ -54,12 +58,10 @@ async function bootstrap() {
     const router = Router();
     for (const route of routes) {
       const handler = (instance as any)[route.handler].bind(instance);
-      // ✅ НИЧЕГО НЕ ДОБАВЛЯЙ - @UseValidators внутри handler!
       (router as any)[route.method](route.path, handler);
     }
     app.use(prefix, router);
   }
-  // app.use(`/messages`, messageController.getRoutes())
 
 
   app.listen(PORT, () => {
